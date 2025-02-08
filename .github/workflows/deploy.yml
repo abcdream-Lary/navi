@@ -132,21 +132,14 @@ jobs:
         }
         Write-Host "安装程序构建完成"
       shell: pwsh
-      
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
+
+    - name: Upload Windows Artifacts
+      uses: actions/upload-artifact@v3
       with:
-        files: |
+        name: windows-artifacts
+        path: |
           Output/navi-setup-${{ github.ref_name }}.exe
           Output/navi-portable-${{ github.ref_name }}.zip
-        name: Release ${{ github.ref_name }}
-        body: |
-          ## ✨日志
-
-        draft: true
-        prerelease: false
-        generate_release_notes: false
 
   build-android:
     runs-on: ubuntu-latest
@@ -180,15 +173,41 @@ jobs:
     - name: Rename APK
       run: |
         mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
-      
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
-        name: Release ${{ github.ref_name }}
-        body: |
-          ## ✨日志
 
-        draft: false
-        prerelease: false
+    - name: Upload Android Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-artifacts
+        path: build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
+
+  create-release:
+    needs: [build-windows, build-android]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-artifacts
+          path: artifacts/windows
+
+      - name: Download Android Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: android-artifacts
+          path: artifacts/android
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/windows/navi-setup-${{ github.ref_name }}.exe
+            artifacts/windows/navi-portable-${{ github.ref_name }}.zip
+            artifacts/android/navi-${{ github.ref_name }}.apk
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## ✨日志
+
+          draft: true
+          prerelease: false
+          generate_release_notes: false
