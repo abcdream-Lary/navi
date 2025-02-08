@@ -215,6 +215,7 @@ jobs:
             ### 优化
             - 🎨 优化界面显示效果
             - ⚡️ 提升应用启动速度
+            - 🐛 修复版本显示错误
 
           draft: false
           prerelease: false
