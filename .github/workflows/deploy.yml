@@ -1,0 +1,128 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送版本标签时触发，如 v1.0.0
+  workflow_dispatch:    # 允许手动触发
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Update Version in pubspec.yaml
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
+        
+    - name: Commit and Push Changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -am "Update version to ${GITHUB_REF#refs/tags/v}"
+        git push
+        
+  build-windows:
+    needs: update-version
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+        cache: true
+        
+    - name: Get dependencies
+      run: flutter pub get
+      
+    - name: Build Windows
+      run: flutter build windows --release
+      
+    - name: Download Inno Setup
+      run: |
+        curl -L -o inno-setup.exe https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe
+        .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+      
+    - name: Create Inno Setup Script
+      run: |
+        echo "#define MyAppName \"Navi\"" > installer.iss
+        echo "#define MyAppVersion \"${{ github.ref_name }}\"" >> installer.iss
+        echo "#define MyAppPublisher \"Your Name\"" >> installer.iss
+        echo "#define MyAppExeName \"navi.exe\"" >> installer.iss
+        echo "[Setup]" >> installer.iss
+        echo "AppId={{com.example.navi}}" >> installer.iss
+        echo "AppName={#MyAppName}" >> installer.iss
+        echo "AppVersion={#MyAppVersion}" >> installer.iss
+        echo "AppPublisher={#MyAppPublisher}" >> installer.iss
+        echo "DefaultDirName=D:\{#MyAppName}" >> installer.iss
+        echo "DefaultGroupName={#MyAppName}" >> installer.iss
+        echo "OutputBaseFilename=navi-setup" >> installer.iss
+        echo "Compression=lzma" >> installer.iss
+        echo "SolidCompression=yes" >> installer.iss
+        echo "WizardStyle=modern" >> installer.iss
+        echo "AlwaysShowDirOnReadyPage=yes" >> installer.iss
+        echo "DisableProgramGroupPage=no" >> installer.iss
+        echo "AllowNoIcons=yes" >> installer.iss
+        echo "[Languages]" >> installer.iss
+        echo "Name: \"chinesesimplified\"; MessagesFile: \"compiler:Languages\ChineseSimplified.isl\"" >> installer.iss
+        echo "[Tasks]" >> installer.iss
+        echo "Name: \"desktopicon\"; Description: \"{cm:CreateDesktopIcon}\"; GroupDescription: \"{cm:AdditionalIcons}\"" >> installer.iss
+        echo "[Files]" >> installer.iss
+        echo "Source: \"build\windows\x64\runner\Release\*\"; DestDir: \"{app}\"; Flags: ignoreversion recursesubdirs" >> installer.iss
+        echo "[Icons]" >> installer.iss
+        echo "Name: \"{group}\{#MyAppName}\"; Filename: \"{app}\{#MyAppExeName}\"" >> installer.iss
+        echo "Name: \"{autodesktop}\{#MyAppName}\"; Filename: \"{app}\{#MyAppExeName}\"; Tasks: desktopicon" >> installer.iss
+      
+    - name: Build Installer
+      run: |
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          Output/navi-setup.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-android:
+    needs: update-version
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+        cache: true
+        
+    - name: Get dependencies
+      run: flutter pub get
+      
+    - name: Build Android APK and Bundle
+      run: |
+        flutter build apk --release
+        flutter build appbundle --release
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          build/app/outputs/flutter-apk/app-release.apk
+          build/app/outputs/bundle/release/app-release.aab
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
