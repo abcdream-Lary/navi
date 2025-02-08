@@ -3,46 +3,17 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
-  workflow_dispatch:    # 允许手动触发
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  update-version:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        ref: main  # 显式检出 main 分支
-        
-    - name: Update Version in pubspec.yaml
-      run: |
-        VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
-        echo "Updating version to $VERSION"
-        sed -i "s/^version:.*$/version: $VERSION/" pubspec.yaml
-        cat pubspec.yaml
-        
-    - name: Commit and Push Changes
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "github-actions[bot]"
-        git checkout -b temp-branch
-        git add pubspec.yaml
-        git commit -m "Update version to ${{ github.ref_name }}"
-        git push origin HEAD:main --force
-        
   build-windows:
-    needs: update-version
     runs-on: windows-latest
-    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -75,7 +46,7 @@ jobs:
         echo "AppPublisher={#MyAppPublisher}" >> installer.iss
         echo "DefaultDirName=D:\{#MyAppName}" >> installer.iss
         echo "DefaultGroupName={#MyAppName}" >> installer.iss
-        echo "OutputBaseFilename=navi-setup" >> installer.iss
+        echo "OutputBaseFilename=navi-setup-${{ github.ref_name }}" >> installer.iss
         echo "Compression=lzma" >> installer.iss
         echo "SolidCompression=yes" >> installer.iss
         echo "WizardStyle=modern" >> installer.iss
@@ -100,18 +71,15 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: |
-          Output/navi-setup.exe
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        files: Output/navi-setup-${{ github.ref_name }}.exe
+        name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
 
   build-android:
-    needs: update-version
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -135,5 +103,6 @@ jobs:
         files: |
           build/app/outputs/flutter-apk/app-release.apk
           build/app/outputs/bundle/release/app-release.aab
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
