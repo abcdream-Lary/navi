@@ -16,6 +16,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        ref: main  # 显式检出 main 分支
         
     - name: Update Version in pubspec.yaml
       run: |
@@ -30,9 +31,10 @@ jobs:
       run: |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
+        git checkout -b temp-branch
         git add pubspec.yaml
-        git diff --staged --quiet || git commit -m "Update version to ${{ github.ref_name }}"
-        git push
+        git commit -m "Update version to ${{ github.ref_name }}"
+        git push origin HEAD:main --force
         
   build-windows:
     needs: update-version
