@@ -37,9 +37,12 @@ class _DesktopHomeScreenState extends State<DesktopHomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 加载数据
+    // 只在数据未预加载时加载数据
     Future.microtask(() {
-      context.read<WebsiteProvider>().preloadData();
+      final provider = context.read<WebsiteProvider>();
+      if (!provider.isPreloaded) {
+        provider.preloadData();
+      }
     });
   }
 

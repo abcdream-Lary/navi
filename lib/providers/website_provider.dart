@@ -362,8 +362,8 @@ class WebsiteProvider with ChangeNotifier {
         // Windows平台优先使用程序安装目录
         try {
           final exePath = Platform.resolvedExecutable;
-          final exeDir = Directory(path.dirname(exePath));
-          final dataDir = Directory(path.join(exeDir.path, 'data'));
+          final exeDir = path.dirname(exePath);
+          final dataDir = Directory(path.join(exeDir, 'data'));
 
           // 如果目录不存在，创建它
           if (!await dataDir.exists()) {
@@ -381,7 +381,7 @@ class WebsiteProvider with ChangeNotifier {
           debugPrint('无法使用程序安装目录，切换到用户文档目录: $e');
           // 如果无法使用程序安装目录，回退到用户文档目录
           final directory = await getApplicationDocumentsDirectory();
-          final dataDir = Directory(path.join(directory.path, 'navi'));
+          final dataDir = Directory(path.join(directory.path, 'Navi', 'data'));
 
           if (!await dataDir.exists()) {
             await dataDir.create(recursive: true);
@@ -391,9 +391,9 @@ class WebsiteProvider with ChangeNotifier {
           return path.join(dataDir.path, 'navi_data.json');
         }
       } else {
-        // 移动端直接使用应用数据目录
+        // 移动端使用应用数据目录下的 data 文件夹
         final directory = await getApplicationDocumentsDirectory();
-        final dataDir = Directory(path.join(directory.path, 'navi'));
+        final dataDir = Directory(path.join(directory.path, 'data'));
 
         if (!await dataDir.exists()) {
           await dataDir.create(recursive: true);

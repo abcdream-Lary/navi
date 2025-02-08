@@ -54,22 +54,55 @@ class AppTheme {
     // 按钮主题
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        backgroundColor: black,
+        foregroundColor: white,
         shape: RoundedRectangleBorder(
           borderRadius: smoothBorderRadius,
         ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: smoothBorderRadius,
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all(black),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: smoothBorderRadius,
+          ),
+        ),
+        overlayColor: MaterialStateProperty.resolveWith<Color>(
+          (Set<MaterialState> states) {
+            if (states.contains(MaterialState.pressed)) {
+              return black.withOpacity(0.1);
+            }
+            if (states.contains(MaterialState.hovered)) {
+              return black.withOpacity(0.05);
+            }
+            return Colors.transparent;
+          },
         ),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: smoothBorderRadius,
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all(black),
+        side: MaterialStateProperty.all(
+          BorderSide(color: black.withOpacity(0.2)),
+        ),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: smoothBorderRadius,
+          ),
+        ),
+        overlayColor: MaterialStateProperty.resolveWith<Color>(
+          (Set<MaterialState> states) {
+            if (states.contains(MaterialState.pressed)) {
+              return black.withOpacity(0.1);
+            }
+            if (states.contains(MaterialState.hovered)) {
+              return black.withOpacity(0.05);
+            }
+            return Colors.transparent;
+          },
         ),
       ),
     ),
