@@ -34,34 +34,35 @@ jobs:
         .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
       
     - name: Create Inno Setup Script
+      shell: cmd
       run: |
-        echo "#define MyAppName \"Navi\"" > installer.iss
-        echo "#define MyAppVersion \"${{ github.ref_name }}\"" >> installer.iss
-        echo "#define MyAppPublisher \"Your Name\"" >> installer.iss
-        echo "#define MyAppExeName \"navi.exe\"" >> installer.iss
-        echo "[Setup]" >> installer.iss
-        echo "AppId={{com.example.navi}}" >> installer.iss
-        echo "AppName={#MyAppName}" >> installer.iss
-        echo "AppVersion={#MyAppVersion}" >> installer.iss
-        echo "AppPublisher={#MyAppPublisher}" >> installer.iss
-        echo "DefaultDirName=D:\{#MyAppName}" >> installer.iss
-        echo "DefaultGroupName={#MyAppName}" >> installer.iss
-        echo "OutputBaseFilename=navi-setup-${{ github.ref_name }}" >> installer.iss
-        echo "Compression=lzma" >> installer.iss
-        echo "SolidCompression=yes" >> installer.iss
-        echo "WizardStyle=modern" >> installer.iss
-        echo "AlwaysShowDirOnReadyPage=yes" >> installer.iss
-        echo "DisableProgramGroupPage=no" >> installer.iss
-        echo "AllowNoIcons=yes" >> installer.iss
-        echo "[Languages]" >> installer.iss
-        echo "Name: \"chinesesimplified\"; MessagesFile: \"compiler:Languages\ChineseSimplified.isl\"" >> installer.iss
-        echo "[Tasks]" >> installer.iss
-        echo "Name: \"desktopicon\"; Description: \"{cm:CreateDesktopIcon}\"; GroupDescription: \"{cm:AdditionalIcons}\"" >> installer.iss
-        echo "[Files]" >> installer.iss
-        echo "Source: \"build\windows\x64\runner\Release\*\"; DestDir: \"{app}\"; Flags: ignoreversion recursesubdirs" >> installer.iss
-        echo "[Icons]" >> installer.iss
-        echo "Name: \"{group}\{#MyAppName}\"; Filename: \"{app}\{#MyAppExeName}\"" >> installer.iss
-        echo "Name: \"{autodesktop}\{#MyAppName}\"; Filename: \"{app}\{#MyAppExeName}\"; Tasks: desktopicon" >> installer.iss
+        echo #define MyAppName "Navi" > installer.iss
+        echo #define MyAppVersion "${{ github.ref_name }}" >> installer.iss
+        echo #define MyAppPublisher "Your Name" >> installer.iss
+        echo #define MyAppExeName "navi.exe" >> installer.iss
+        echo [Setup] >> installer.iss
+        echo AppId={{com.example.navi}} >> installer.iss
+        echo AppName={#MyAppName} >> installer.iss
+        echo AppVersion={#MyAppVersion} >> installer.iss
+        echo AppPublisher={#MyAppPublisher} >> installer.iss
+        echo DefaultDirName=D:\{#MyAppName} >> installer.iss
+        echo DefaultGroupName={#MyAppName} >> installer.iss
+        echo OutputBaseFilename=navi-setup-${{ github.ref_name }} >> installer.iss
+        echo Compression=lzma >> installer.iss
+        echo SolidCompression=yes >> installer.iss
+        echo WizardStyle=modern >> installer.iss
+        echo AlwaysShowDirOnReadyPage=yes >> installer.iss
+        echo DisableProgramGroupPage=no >> installer.iss
+        echo AllowNoIcons=yes >> installer.iss
+        echo [Languages] >> installer.iss
+        echo Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl" >> installer.iss
+        echo [Tasks] >> installer.iss
+        echo Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}" >> installer.iss
+        echo [Files] >> installer.iss
+        echo Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs >> installer.iss
+        echo [Icons] >> installer.iss
+        echo Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}" >> installer.iss
+        echo Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon >> installer.iss
       
     - name: Build Installer
       run: |
@@ -91,18 +92,14 @@ jobs:
     - name: Get dependencies
       run: flutter pub get
       
-    - name: Build Android APK and Bundle
-      run: |
-        flutter build apk --release
-        flutter build appbundle --release
+    - name: Build Android APK
+      run: flutter build apk --release --no-shrink
       
     - name: Create Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: |
-          build/app/outputs/flutter-apk/app-release.apk
-          build/app/outputs/bundle/release/app-release.aab
+        files: build/app/outputs/flutter-apk/app-release.apk
         name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
