@@ -12,18 +12,21 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-      
+      with:
+        fetch-depth: 0
+        
     - name: Update Version in pubspec.yaml
       run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
-        sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
+        VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
+        sed -i "s/version: .*/version: $VERSION/" pubspec.yaml
         
     - name: Commit and Push Changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -am "Update version to ${GITHUB_REF#refs/tags/v}"
-        git push
+        git add pubspec.yaml
+        git commit -m "Update version to $VERSION"
+        git push origin HEAD:${GITHUB_REF_NAME}
         
   build-windows:
     needs: update-version
