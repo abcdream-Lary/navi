@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../providers/website_provider.dart';
+import '../theme/app_theme.dart';
 
 /// 移动设备（手机和平板）的备份恢复工具类
 class BackupRestoreUtils {
@@ -24,22 +25,132 @@ class BackupRestoreUtils {
               // 显示权限说明对话框
               await showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('需要存储权限'),
-                  content: const Text('应用需要存储权限来保存备份文件。请在设置中授予权限。'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('取消'),
+                builder: (context) => Dialog(
+                  backgroundColor: AppTheme.backgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppTheme.smoothBorderRadius,
+                  ),
+                  child: Container(
+                    width: 320,
+                    height: 160,
+                    padding: const EdgeInsets.only(
+                      left: 24,
+                      right: 24,
+                      top: 24,
+                      bottom: 8,
                     ),
-                    TextButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await openAppSettings();
-                      },
-                      child: const Text('去设置'),
+                    decoration: BoxDecoration(
+                      borderRadius: AppTheme.smoothBorderRadius,
                     ),
-                  ],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.folder_outlined,
+                                  color: AppTheme.black,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '需要存储权限',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '应用需要存储权限来保存备份文件，请在设置中授予权限。',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.black.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: ButtonStyle(
+                                foregroundColor: MaterialStateProperty.all(
+                                  AppTheme.black.withOpacity(0.5),
+                                ),
+                                overlayColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.hovered)) {
+                                      return Colors.red.withOpacity(0.1);
+                                    }
+                                    return Colors.transparent;
+                                  },
+                                ),
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: AppTheme.smoothBorderRadius,
+                                  ),
+                                ),
+                              ),
+                              child: const Text('取消'),
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: () async {
+                                Navigator.pop(context);
+                                await openAppSettings();
+                              },
+                              style: ButtonStyle(
+                                overlayColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.hovered)) {
+                                      return Colors.red.withOpacity(0.1);
+                                    }
+                                    return Colors.transparent;
+                                  },
+                                ),
+                                padding: MaterialStateProperty.all(
+                                  const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: AppTheme.smoothBorderRadius,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                '去设置',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             }

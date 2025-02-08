@@ -26,6 +26,8 @@ dependencies:
   shimmer: ^3.0.0
   permission_handler: ^11.3.0  # 用于权限管理
   file_selector: ^1.0.3
+  http: ^1.2.0  # 用于网络请求
+  package_info_plus: ^5.0.1  # 用于获取应用版本信息
 
 dev_dependencies:
   flutter_test:

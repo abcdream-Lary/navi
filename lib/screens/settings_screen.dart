@@ -14,6 +14,7 @@ import 'package:shimmer/shimmer.dart';
 import '../utils/responsive_layout.dart';
 import 'mobile/mobile_settings_screen.dart';
 import '../utils/desktop_backup_restore_utils.dart';
+import '../services/update_service.dart';
 
 // 在类外部定义扩展
 extension WebsiteProviderExtension on WebsiteProvider {
@@ -2314,28 +2315,224 @@ class _DesktopSettingsScreenState extends State<DesktopSettingsScreen>
             const SizedBox(height: 16),
 
             // 版本信息
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.cardColor,
-                borderRadius: AppTheme.smoothBorderRadius,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 20,
-                    color: AppTheme.black.withOpacity(1),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '当前版本：0.1.3',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.black.withOpacity(0.7),
+            InkWell(
+              onTap: () async {
+                try {
+                  // 显示加载对话框
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => Dialog(
+                      backgroundColor: AppTheme.backgroundColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppTheme.smoothBorderRadius,
+                      ),
+                      child: Container(
+                        width: 280,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(
+                              width: 36,
+                              height: 36,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.black),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '正在检查更新...',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppTheme.textColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  );
+
+                  final (hasUpdate, _) = await UpdateService.checkUpdate();
+
+                  // 关闭加载对话框
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+
+                  // 如果没有更新，显示提示
+                  if (!hasUpdate && context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        backgroundColor: AppTheme.backgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppTheme.smoothBorderRadius,
+                        ),
+                        child: Container(
+                          width: 280,
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline,
+                                size: 36,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                '已是最新版本',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppTheme.textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('确定'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (hasUpdate && context.mounted) {
+                    await UpdateService.checkUpdateAndShowDialog(context);
+                  }
+                } catch (e) {
+                  // 关闭加载对话框
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        backgroundColor: AppTheme.backgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppTheme.smoothBorderRadius,
+                        ),
+                        child: Container(
+                          width: 320,
+                          height: 160,
+                          padding: const EdgeInsets.only(
+                            left: 24,
+                            right: 24,
+                            top: 24,
+                            bottom: 8,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.warning_amber_rounded,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '提示',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppTheme.textColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    '检查更新失败：${e.toString().contains('403') ? '请求次数过多，请一小时后再尝试' : e}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppTheme.textColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: ButtonStyle(
+                                      overlayColor: MaterialStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<MaterialState> states) {
+                                          if (states.contains(
+                                              MaterialState.hovered)) {
+                                            return Colors.red.withOpacity(0.1);
+                                          }
+                                          return Colors.transparent;
+                                        },
+                                      ),
+                                      padding: MaterialStateProperty.all(
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      '确定',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+              borderRadius: AppTheme.smoothBorderRadius,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardColor,
+                  borderRadius: AppTheme.smoothBorderRadius,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: AppTheme.black.withOpacity(1),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      '当前版本：0.1.3',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.black,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: AppTheme.black.withOpacity(0.3),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 32),
