@@ -9,24 +9,30 @@ on:
 jobs:
   update-version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Update Version in pubspec.yaml
       run: |
         VERSION=$(echo ${{ github.ref_name }} | sed 's/^v//')
-        sed -i "s/version: .*/version: $VERSION/" pubspec.yaml
+        echo "Updating version to $VERSION"
+        sed -i "s/^version:.*$/version: $VERSION/" pubspec.yaml
+        cat pubspec.yaml
         
     - name: Commit and Push Changes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
         git add pubspec.yaml
-        git commit -m "Update version to $VERSION"
-        git push origin HEAD:${GITHUB_REF_NAME}
+        git diff --staged --quiet || git commit -m "Update version to ${{ github.ref_name }}"
+        git push
         
   build-windows:
     needs: update-version
