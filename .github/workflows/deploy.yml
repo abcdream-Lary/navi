@@ -32,6 +32,8 @@ jobs:
       run: |
         curl -L -o inno-setup.exe https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe
         .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+        curl -L -o ChineseSimplified.isl https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/ChineseSimplified.isl
+        Copy-Item -Path ChineseSimplified.isl -Destination "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
       
     - name: Create Inno Setup Script
       run: |
@@ -54,6 +56,7 @@ jobs:
         Add-Content -Path "installer.iss" -Value 'WizardStyle=modern'
         Add-Content -Path "installer.iss" -Value ''
         Add-Content -Path "installer.iss" -Value '[Languages]'
+        Add-Content -Path "installer.iss" -Value 'Name: "english"; MessagesFile: "compiler:Default.isl"'
         Add-Content -Path "installer.iss" -Value 'Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"'
         Add-Content -Path "installer.iss" -Value ''
         Add-Content -Path "installer.iss" -Value '[Tasks]'
