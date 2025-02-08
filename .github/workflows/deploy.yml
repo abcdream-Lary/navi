@@ -28,6 +28,13 @@ jobs:
     - name: Build Windows
       run: flutter build windows --release
       
+    - name: Create Portable ZIP
+      run: |
+        Write-Host "创建便携版 ZIP 包..."
+        Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "Output\navi-portable-${{ github.ref_name }}.zip"
+        Write-Host "便携版 ZIP 包创建完成"
+      shell: pwsh
+      
     - name: Download Inno Setup
       run: |
         Write-Host "开始下载 Inno Setup..."
@@ -121,10 +128,16 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: Output/navi-setup-${{ github.ref_name }}.exe
+        files: |
+          Output/navi-setup-${{ github.ref_name }}.exe
+          Output/navi-portable-${{ github.ref_name }}.zip
         name: Release ${{ github.ref_name }}
-        draft: false
+        body: |
+          ## ✨日志
+
+        draft: true
         prerelease: false
+        generate_release_notes: false
 
   build-android:
     runs-on: ubuntu-latest
@@ -155,11 +168,18 @@ jobs:
     - name: Build Android APK
       run: flutter build apk --release
       
+    - name: Rename APK
+      run: |
+        mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
+      
     - name: Create Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: build/app/outputs/flutter-apk/app-release.apk
+        files: build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
         name: Release ${{ github.ref_name }}
+        body: |
+          ## ✨日志
+
         draft: false
         prerelease: false
