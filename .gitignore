@@ -120,3 +120,9 @@ migrate_working_dir/
 
 # 依赖锁定文件（根据需要取消注释）
 # pubspec.lock
+
+# Keystore files
+*.keystore
+*.jks
+android/key.properties
+android/app/navi.keystore
