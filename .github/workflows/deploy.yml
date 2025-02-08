@@ -30,48 +30,92 @@ jobs:
       
     - name: Download Inno Setup
       run: |
+        Write-Host "开始下载 Inno Setup..."
         curl -L -o inno-setup.exe https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe
+        if (-not (Test-Path "inno-setup.exe")) {
+          Write-Error "Inno Setup 下载失败"
+          exit 1
+        }
+        Write-Host "安装 Inno Setup..."
         .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
-        Copy-Item -Path ".github/workflows/ChineseSimplified.isl" -Destination "ChineseSimplified.isl"
+        Write-Host "等待安装完成..."
+        Start-Sleep -Seconds 10
+        Write-Host "复制中文语言文件..."
+        if (-not (Test-Path ".github/workflows/ChineseSimplified.isl")) {
+          Write-Error "找不到中文语言文件"
+          exit 1
+        }
+        Copy-Item -Path ".github/workflows/ChineseSimplified.isl" -Destination "ChineseSimplified.isl" -Force
+        if (-not (Test-Path "ChineseSimplified.isl")) {
+          Write-Error "中文语言文件复制失败"
+          exit 1
+        }
+        Write-Host "语言文件复制完成"
+      shell: pwsh
       
     - name: Create Inno Setup Script
       run: |
-        New-Item -Path "installer.iss" -ItemType File -Force
-        Add-Content -Path "installer.iss" -Value '#define MyAppName "Navi"'
-        Add-Content -Path "installer.iss" -Value '#define MyAppVersion "${{ github.ref_name }}"'
-        Add-Content -Path "installer.iss" -Value '#define MyAppPublisher "Your Name"'
-        Add-Content -Path "installer.iss" -Value '#define MyAppExeName "navi.exe"'
-        Add-Content -Path "installer.iss" -Value ''
-        Add-Content -Path "installer.iss" -Value '[Setup]'
-        Add-Content -Path "installer.iss" -Value 'AppId={{com.example.navi}}'
-        Add-Content -Path "installer.iss" -Value 'AppName={#MyAppName}'
-        Add-Content -Path "installer.iss" -Value 'AppVersion={#MyAppVersion}'
-        Add-Content -Path "installer.iss" -Value 'AppPublisher={#MyAppPublisher}'
-        Add-Content -Path "installer.iss" -Value 'DefaultDirName={autopf}\{#MyAppName}'
-        Add-Content -Path "installer.iss" -Value 'DefaultGroupName={#MyAppName}'
-        Add-Content -Path "installer.iss" -Value 'OutputBaseFilename=navi-setup-${{ github.ref_name }}'
-        Add-Content -Path "installer.iss" -Value 'Compression=lzma'
-        Add-Content -Path "installer.iss" -Value 'SolidCompression=yes'
-        Add-Content -Path "installer.iss" -Value 'WizardStyle=modern'
-        Add-Content -Path "installer.iss" -Value ''
-        Add-Content -Path "installer.iss" -Value '[Languages]'
-        Add-Content -Path "installer.iss" -Value 'Name: "english"; MessagesFile: "compiler:Default.isl"'
-        Add-Content -Path "installer.iss" -Value 'Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"'
-        Add-Content -Path "installer.iss" -Value ''
-        Add-Content -Path "installer.iss" -Value '[Tasks]'
-        Add-Content -Path "installer.iss" -Value 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"'
-        Add-Content -Path "installer.iss" -Value ''
-        Add-Content -Path "installer.iss" -Value '[Files]'
-        Add-Content -Path "installer.iss" -Value 'Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs'
-        Add-Content -Path "installer.iss" -Value ''
-        Add-Content -Path "installer.iss" -Value '[Icons]'
-        Add-Content -Path "installer.iss" -Value 'Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"'
-        Add-Content -Path "installer.iss" -Value 'Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon'
+        Write-Host "创建安装脚本..."
+        $content = '#define MyAppName "Navi"' + "`n"
+        $content += '#define MyAppVersion "' + "${{ github.ref_name }}" + '"' + "`n"
+        $content += '#define MyAppPublisher "Your Name"' + "`n"
+        $content += '#define MyAppExeName "navi.exe"' + "`n"
+        $content += "`n"
+        $content += '[Setup]' + "`n"
+        $content += 'AppId={{com.example.navi}}' + "`n"
+        $content += 'AppName={#MyAppName}' + "`n"
+        $content += 'AppVersion={#MyAppVersion}' + "`n"
+        $content += 'AppPublisher={#MyAppPublisher}' + "`n"
+        $content += 'DefaultDirName={autopf}\{#MyAppName}' + "`n"
+        $content += 'DefaultGroupName={#MyAppName}' + "`n"
+        $content += 'OutputBaseFilename=navi-setup-' + "${{ github.ref_name }}" + "`n"
+        $content += 'OutputDir=Output' + "`n"
+        $content += 'Compression=lzma' + "`n"
+        $content += 'SolidCompression=yes' + "`n"
+        $content += 'WizardStyle=modern' + "`n"
+        $content += "`n"
+        $content += '[Languages]' + "`n"
+        $content += 'Name: "english"; MessagesFile: "compiler:Default.isl"' + "`n"
+        $content += 'Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"' + "`n"
+        $content += "`n"
+        $content += '[Tasks]' + "`n"
+        $content += 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"' + "`n"
+        $content += "`n"
+        $content += '[Files]' + "`n"
+        $content += 'Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs' + "`n"
+        $content += "`n"
+        $content += '[Icons]' + "`n"
+        $content += 'Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"' + "`n"
+        $content += 'Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon' + "`n"
+        Set-Content -Path "installer.iss" -Value $content -Encoding UTF8
+        Write-Host "安装脚本创建完成"
+        Get-Content "installer.iss"
       shell: pwsh
       
     - name: Build Installer
       run: |
-        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+        Write-Host "开始构建安装程序..."
+        if (-not (Test-Path "installer.iss")) {
+          Write-Error "找不到安装脚本文件"
+          exit 1
+        }
+        if (-not (Test-Path "ChineseSimplified.isl")) {
+          Write-Error "找不到中文语言文件"
+          exit 1
+        }
+        Write-Host "检查构建目录..."
+        if (-not (Test-Path "build\windows\x64\runner\Release")) {
+          Write-Error "找不到构建输出目录"
+          exit 1
+        }
+        Write-Host "运行 Inno Setup 编译器..."
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Q "installer.iss"
+        if (-not (Test-Path "Output")) {
+          Write-Error "安装程序构建失败"
+          exit 1
+        }
+        Write-Host "安装程序构建完成"
+      shell: pwsh
       
     - name: Create Release
       uses: softprops/action-gh-release@v1
