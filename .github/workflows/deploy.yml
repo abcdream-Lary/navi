@@ -31,7 +31,16 @@ jobs:
     - name: Create Portable ZIP
       run: |
         Write-Host "创建便携版 ZIP 包..."
-        Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "Output\navi-portable-${{ github.ref_name }}.zip"
+        New-Item -ItemType Directory -Force -Path "Output"
+        $sourcePath = "build\windows\x64\runner\Release\*"
+        $destPath = "Output\navi-portable-${{ github.ref_name }}.zip"
+        Write-Host "源路径: $sourcePath"
+        Write-Host "目标路径: $destPath"
+        Compress-Archive -Path $sourcePath -DestinationPath $destPath -Force
+        if (-not (Test-Path $destPath)) {
+          Write-Error "便携版 ZIP 包创建失败"
+          exit 1
+        }
         Write-Host "便携版 ZIP 包创建完成"
       shell: pwsh
       
