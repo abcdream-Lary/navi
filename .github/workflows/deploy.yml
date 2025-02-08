@@ -33,7 +33,7 @@ jobs:
         curl -L -o inno-setup.exe https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe
         .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
         New-Item -Path "C:\Program Files (x86)\Inno Setup 6\Languages" -ItemType Directory -Force
-        Copy-Item -Path ".github/workflows/Chinese.isl" -Destination "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
+        Copy-Item -Path ".github/workflows/ChineseSimplified.isl" -Destination "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
       
     - name: Create Inno Setup Script
       run: |
