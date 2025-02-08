@@ -34,43 +34,42 @@ jobs:
         .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
       
     - name: Create Inno Setup Script
-      shell: cmd
       run: |
-        (
-        echo #define MyAppName "Navi"
-        echo #define MyAppVersion "%GITHUB_REF_NAME%"
-        echo #define MyAppPublisher "Your Name"
-        echo #define MyAppExeName "navi.exe"
-        echo.
-        echo [Setup]
-        echo AppId={{com.example.navi}}
-        echo AppName={#MyAppName}
-        echo AppVersion={#MyAppVersion}
-        echo AppPublisher={#MyAppPublisher}
-        echo DefaultDirName={autopf}\{#MyAppName}
-        echo DefaultGroupName={#MyAppName}
-        echo OutputBaseFilename=navi-setup-%GITHUB_REF_NAME%
-        echo Compression=lzma
-        echo SolidCompression=yes
-        echo WizardStyle=modern
-        echo.
-        echo [Languages]
-        echo Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
-        echo.
-        echo [Tasks]
-        echo Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
-        echo.
-        echo [Files]
-        echo Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-        echo.
-        echo [Icons]
-        echo Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-        echo Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-        ) > installer.iss
+        New-Item -Path "installer.iss" -ItemType File -Force
+        Add-Content -Path "installer.iss" -Value '#define MyAppName "Navi"'
+        Add-Content -Path "installer.iss" -Value '#define MyAppVersion "${{ github.ref_name }}"'
+        Add-Content -Path "installer.iss" -Value '#define MyAppPublisher "Your Name"'
+        Add-Content -Path "installer.iss" -Value '#define MyAppExeName "navi.exe"'
+        Add-Content -Path "installer.iss" -Value ''
+        Add-Content -Path "installer.iss" -Value '[Setup]'
+        Add-Content -Path "installer.iss" -Value 'AppId={{com.example.navi}}'
+        Add-Content -Path "installer.iss" -Value 'AppName={#MyAppName}'
+        Add-Content -Path "installer.iss" -Value 'AppVersion={#MyAppVersion}'
+        Add-Content -Path "installer.iss" -Value 'AppPublisher={#MyAppPublisher}'
+        Add-Content -Path "installer.iss" -Value 'DefaultDirName={autopf}\{#MyAppName}'
+        Add-Content -Path "installer.iss" -Value 'DefaultGroupName={#MyAppName}'
+        Add-Content -Path "installer.iss" -Value 'OutputBaseFilename=navi-setup-${{ github.ref_name }}'
+        Add-Content -Path "installer.iss" -Value 'Compression=lzma'
+        Add-Content -Path "installer.iss" -Value 'SolidCompression=yes'
+        Add-Content -Path "installer.iss" -Value 'WizardStyle=modern'
+        Add-Content -Path "installer.iss" -Value ''
+        Add-Content -Path "installer.iss" -Value '[Languages]'
+        Add-Content -Path "installer.iss" -Value 'Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"'
+        Add-Content -Path "installer.iss" -Value ''
+        Add-Content -Path "installer.iss" -Value '[Tasks]'
+        Add-Content -Path "installer.iss" -Value 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"'
+        Add-Content -Path "installer.iss" -Value ''
+        Add-Content -Path "installer.iss" -Value '[Files]'
+        Add-Content -Path "installer.iss" -Value 'Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs'
+        Add-Content -Path "installer.iss" -Value ''
+        Add-Content -Path "installer.iss" -Value '[Icons]'
+        Add-Content -Path "installer.iss" -Value 'Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"'
+        Add-Content -Path "installer.iss" -Value 'Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon'
+      shell: pwsh
       
     - name: Build Installer
       run: |
-        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
       
     - name: Create Release
       uses: softprops/action-gh-release@v1
