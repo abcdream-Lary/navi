@@ -207,6 +207,14 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             ## ✨日志
+            
+            ### 新增功能
+            - ✨ 添加检查更新功能（20分钟缓存）
+            - ✨ 支持 Windows 便携版本
+
+            ### 优化
+            - 🎨 优化界面显示效果
+            - ⚡️ 提升应用启动速度
 
           draft: true
           prerelease: false
