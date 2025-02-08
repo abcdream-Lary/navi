@@ -134,7 +134,7 @@ jobs:
       shell: pwsh
 
     - name: Upload Windows Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: windows-artifacts
         path: |
@@ -175,7 +175,7 @@ jobs:
         mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
 
     - name: Upload Android Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: android-artifacts
         path: build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
@@ -186,13 +186,13 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Download Windows Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: windows-artifacts
           path: artifacts/windows
 
       - name: Download Android Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: android-artifacts
           path: artifacts/android
