@@ -36,30 +36,37 @@ jobs:
     - name: Create Inno Setup Script
       shell: cmd
       run: |
-        echo #define MyAppName "Navi" > installer.iss
-        echo #define MyAppVersion "%GITHUB_REF_NAME%" >> installer.iss
-        echo #define MyAppPublisher "Your Name" >> installer.iss
-        echo #define MyAppExeName "navi.exe" >> installer.iss
-        echo [Setup] >> installer.iss
-        echo AppId={{com.example.navi}} >> installer.iss
-        echo AppName={#MyAppName} >> installer.iss
-        echo AppVersion={#MyAppVersion} >> installer.iss
-        echo AppPublisher={#MyAppPublisher} >> installer.iss
-        echo DefaultDirName={autopf}\{#MyAppName} >> installer.iss
-        echo DefaultGroupName={#MyAppName} >> installer.iss
-        echo OutputBaseFilename=navi-setup-%GITHUB_REF_NAME% >> installer.iss
-        echo Compression=lzma >> installer.iss
-        echo SolidCompression=yes >> installer.iss
-        echo WizardStyle=modern >> installer.iss
-        echo [Languages] >> installer.iss
-        echo Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl" >> installer.iss
-        echo [Tasks] >> installer.iss
-        echo Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}" >> installer.iss
-        echo [Files] >> installer.iss
-        echo Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs >> installer.iss
-        echo [Icons] >> installer.iss
-        echo Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}" >> installer.iss
-        echo Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon >> installer.iss
+        (
+        echo #define MyAppName "Navi"
+        echo #define MyAppVersion "%GITHUB_REF_NAME%"
+        echo #define MyAppPublisher "Your Name"
+        echo #define MyAppExeName "navi.exe"
+        echo.
+        echo [Setup]
+        echo AppId={{com.example.navi}}
+        echo AppName={#MyAppName}
+        echo AppVersion={#MyAppVersion}
+        echo AppPublisher={#MyAppPublisher}
+        echo DefaultDirName={autopf}\{#MyAppName}
+        echo DefaultGroupName={#MyAppName}
+        echo OutputBaseFilename=navi-setup-%GITHUB_REF_NAME%
+        echo Compression=lzma
+        echo SolidCompression=yes
+        echo WizardStyle=modern
+        echo.
+        echo [Languages]
+        echo Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+        echo.
+        echo [Tasks]
+        echo Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+        echo.
+        echo [Files]
+        echo Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+        echo.
+        echo [Icons]
+        echo Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+        echo Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+        ) > installer.iss
       
     - name: Build Installer
       run: |
