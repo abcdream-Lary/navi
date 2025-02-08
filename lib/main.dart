@@ -13,6 +13,7 @@ import 'utils/shader_warmer.dart';
 import 'widgets/splash_screen.dart';
 import 'dart:async';
 import 'services/update_service.dart';
+import 'constants/app_version.dart';
 
 // 定义设备类型枚举
 enum DeviceType {
@@ -61,6 +62,9 @@ void main() async {
 
   // 初始化更新服务
   await UpdateService.initialize();
+
+  // 初始化版本信息
+  await AppVersion.initialize();
 
   // 创建并预加载数据
   final websiteProvider = WebsiteProvider();

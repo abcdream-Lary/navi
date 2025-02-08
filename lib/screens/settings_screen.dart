@@ -15,6 +15,7 @@ import '../utils/responsive_layout.dart';
 import 'mobile/mobile_settings_screen.dart';
 import '../utils/desktop_backup_restore_utils.dart';
 import '../services/update_service.dart';
+import '../constants/app_version.dart';
 
 // 在类外部定义扩展
 extension WebsiteProviderExtension on WebsiteProvider {
@@ -2518,9 +2519,9 @@ class _DesktopSettingsScreenState extends State<DesktopSettingsScreen>
                       color: AppTheme.black.withOpacity(1),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      '当前版本：0.1.3',
-                      style: TextStyle(
+                    Text(
+                      '当前版本：${AppVersion.getVersionNumber()}',
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.black,
                       ),

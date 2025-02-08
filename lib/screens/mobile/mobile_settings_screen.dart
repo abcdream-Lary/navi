@@ -10,6 +10,7 @@ import '../../widgets/category_selector.dart';
 import '../../widgets/icon_selector.dart';
 import '../../constants/icon_data.dart';
 import '../../services/update_service.dart';
+import '../../constants/app_version.dart';
 
 /// 移动端设置屏幕
 class MobileSettingsScreen extends StatefulWidget {
@@ -631,9 +632,9 @@ class _SettingDetailScreenState extends State<SettingDetailScreen> {
                     color: AppTheme.black.withOpacity(1),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    '当前版本：0.1.3',
-                    style: TextStyle(
+                  Text(
+                    '当前版本：${AppVersion.getVersionNumber()}',
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppTheme.black,
                     ),
