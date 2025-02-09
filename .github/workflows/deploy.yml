@@ -272,10 +272,10 @@ jobs:
           # 检查是否存在 CHANGELOG.md
           if [ -f "CHANGELOG.md" ]; then
             # 提取当前版本的日志
-            # 使用 awk 提取版本之间的内容
+            # 使用 awk 提取版本之间的内容（跳过版本号标题，从 ✨日志 开始）
             awk -v ver="${{ github.ref_name }}" '
-              $0 ~ "^## " ver {p=1;print;next}
-              p&&/^## /{p=0;exit}
+              $0 ~ "^## " ver {p=1;next}
+              p&&/^## v/{p=0;exit}
               p{print}
             ' CHANGELOG.md > release_notes.txt
             
@@ -283,8 +283,8 @@ jobs:
             if [ ! -s release_notes.txt ] && [[ "${{ github.ref_name }}" == v* ]]; then
               VERSION_NO_V="${VERSION#v}"  # 使用之前定义的 VERSION 变量
               awk -v ver="$VERSION_NO_V" '
-                $0 ~ "^## " ver {p=1;print;next}
-                p&&/^## /{p=0;exit}
+                $0 ~ "^## " ver {p=1;next}
+                p&&/^## v/{p=0;exit}
                 p{print}
               ' CHANGELOG.md > release_notes.txt
             fi
