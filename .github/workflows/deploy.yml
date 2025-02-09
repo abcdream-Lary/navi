@@ -320,7 +320,7 @@ jobs:
           body_path: release_notes.txt
           draft: false
           prerelease: false
-          generate_release_notes: true
+          generate_release_notes: false
 
       - name: Update version.json
         run: |
