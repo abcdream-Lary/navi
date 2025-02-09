@@ -316,7 +316,7 @@ jobs:
             artifacts/windows/navi-setup-${{ github.ref_name }}.exe
             artifacts/windows/navi-portable-${{ github.ref_name }}.zip
             artifacts/android/navi-${{ github.ref_name }}.apk
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           body_path: release_notes.txt
           draft: false
           prerelease: false
