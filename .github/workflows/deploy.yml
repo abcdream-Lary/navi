@@ -269,3 +269,11 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: false
+
+      # 触发更新 version.json 的工作流
+      - name: Trigger Update Version Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-update-version
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

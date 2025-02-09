@@ -3,6 +3,8 @@ name: Update Version JSON
 on:
   release:
     types: [published]
+  repository_dispatch:
+    types: [trigger-update-version]
 
 permissions:
   contents: write
@@ -16,19 +18,34 @@ jobs:
           ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
           
+      - name: Get Latest Release Info
+        id: release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const release = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            core.setOutput('tag_name', release.data.tag_name);
+            core.setOutput('body', release.data.body);
+            core.setOutput('html_url', release.data.html_url);
+            core.setOutput('assets', JSON.stringify(release.data.assets));
+          
       - name: Update version.json
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ steps.release.outputs.tag_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
           
           # 获取release说明
-          NOTES="${{ github.event.release.body }}"
+          NOTES="${{ steps.release.outputs.body }}"
           
           # 使用jq处理assets数组
-          WINDOWS_PORTABLE_URL=$(echo '${{ toJson(github.event.release.assets) }}' | jq -r '.[] | select(.name=="navi-portable-${{ github.event.release.tag_name }}.zip") | .browser_download_url')
-          WINDOWS_SETUP_URL=$(echo '${{ toJson(github.event.release.assets) }}' | jq -r '.[] | select(.name=="navi-setup-${{ github.event.release.tag_name }}.exe") | .browser_download_url')
-          ANDROID_URL=$(echo '${{ toJson(github.event.release.assets) }}' | jq -r '.[] | select(.name=="navi-${{ github.event.release.tag_name }}.apk") | .browser_download_url')
-          RELEASE_URL="${{ github.event.release.html_url }}"
+          ASSETS='${{ steps.release.outputs.assets }}'
+          WINDOWS_PORTABLE_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name=="navi-portable-${{ steps.release.outputs.tag_name }}.zip") | .browser_download_url')
+          WINDOWS_SETUP_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name=="navi-setup-${{ steps.release.outputs.tag_name }}.exe") | .browser_download_url')
+          ANDROID_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name=="navi-${{ steps.release.outputs.tag_name }}.apk") | .browser_download_url')
+          RELEASE_URL="${{ steps.release.outputs.html_url }}"
           
           # 确保所有URL都获取到了
           if [ -z "$WINDOWS_PORTABLE_URL" ] || [ -z "$WINDOWS_SETUP_URL" ] || [ -z "$ANDROID_URL" ]; then
@@ -55,5 +72,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add version.json
-          git commit -m "Update version.json for release ${{ github.event.release.tag_name }}"
+          git commit -m "Update version.json for release ${{ steps.release.outputs.tag_name }}"
           git push 
