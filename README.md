@@ -8,7 +8,7 @@
       💻 Windows & Android
     </a>
     <a href="https://github.com/abcdream-Lary/navi/releases" style="text-decoration: none; background: #f6f8fa; padding: 5px 10px; border-radius: 15px; color: #24292e; font-size: 12px; margin: 0 5px;">
-      📦 <img src="https://img.shields.io/github/v/release/abcdream-Lary/navi?style=flat-square&color=f6f8fa&label" style="vertical-align: -8px; margin: 0 -5px;margin: 1px -5px;" height="24"/>
+      📦 <img src="https://img.shields.io/github/v/release/abcdream-Lary/navi?style=flat-square&color=f6f8fa&label" style="vertical-align: -8px; margin: 0 -5px;margin: 1px -5px;" height="24.5"/>
     </a>
     <a href="LICENSE" style="text-decoration: none; background: #f6f8fa; padding: 5px 10px; border-radius: 15px; color: #24292e; font-size: 12px; margin: 0 5px;">
       📜 MIT License
