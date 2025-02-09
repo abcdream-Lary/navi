@@ -202,6 +202,14 @@ jobs:
     - name: Get dependencies
       run: flutter pub get
 
+    - name: Set Version
+      run: |
+        VERSION=${{ github.ref_name }}
+        VERSION_CODE=$(echo $VERSION | sed 's/[^0-9]//g')
+        VERSION_NAME=$(echo $VERSION | sed 's/^v//')
+        echo "flutter.versionCode=$VERSION_CODE" >> android/local.properties
+        echo "flutter.versionName=$VERSION_NAME" >> android/local.properties
+
     - name: Decode Keystore
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/navi.keystore
