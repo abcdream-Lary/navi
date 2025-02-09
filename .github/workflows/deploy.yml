@@ -264,6 +264,25 @@ jobs:
           name: android-artifacts
           path: artifacts/android
 
+      - name: Create Release Notes
+        run: |
+          # 创建 release notes
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          if [ -z "$TAG_MESSAGE" ]; then
+            cat << 'EOF' > release_notes.txt
+          ## ✨日志
+
+          ### 新版本 ${{ github.ref_name }}
+          - 🚀 发布新版本
+          EOF
+          else
+            echo "$TAG_MESSAGE" > release_notes.txt
+          fi
+          
+          # 显示release notes内容以便调试
+          echo "Release Notes content:"
+          cat release_notes.txt
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -289,14 +308,14 @@ jobs:
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
           
-          # 创建 release notes
+          # 重新创建 release notes（因为checkout后需要重新创建）
           TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
           if [ -z "$TAG_MESSAGE" ]; then
             cat << 'EOF' > release_notes.txt
           ## ✨日志
 
-          ### 修复
-          - 🐛 修复Android无法更新的问题
+          ### 新版本 ${{ github.ref_name }}
+          - 🚀 发布新版本
           EOF
           else
             echo "$TAG_MESSAGE" > release_notes.txt
