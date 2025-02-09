@@ -1,6 +1,6 @@
 # Navi - 导航应用
 
-&emsp; ![logo](assets/icons/logo.png)
+&ensp; ![logo](assets/icons/logo.png)
 
 一个简洁优雅的导航应用，基于 Flutter 开发，支持 Windows 和 Android 平台。
 
