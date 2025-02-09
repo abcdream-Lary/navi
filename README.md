@@ -7,8 +7,8 @@
 <div align="center">
 
 ![](https://img.shields.io/static/v1?label=💻&message=Windows%20%26%20Android&color=ffffff&labelColor=ffffff&style=flat)
-![](https://img.shields.io/static/v1?label=📦&message=v1.0.0&color=ffffff&labelColor=ffffff&style=flat)
-![](https://img.shields.io/static/v1?label=📜&message=MIT&color=ffffff&labelColor=ffffff&style=flat)
+[![](https://img.shields.io/github/v/release/abcdream-Lary/navi?label=📦&color=ffffff&labelColor=ffffff)](https://github.com/abcdream-Lary/navi/releases/latest)
+[![](https://img.shields.io/static/v1?label=📜&message=MIT&color=ffffff&labelColor=ffffff&style=flat)](LICENSE)
 
 </div>
 
