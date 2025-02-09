@@ -10,7 +10,7 @@ class AppVersion {
 
   // 获取版本号
   static String getVersionNumber() {
-    return _packageInfo?.version ?? '0.1.4'; // 如果未初始化，返回默认版本
+    return _packageInfo?.version ?? '0.1.5'; // 如果未初始化，返回默认版本
   }
 
   // 获取构建号

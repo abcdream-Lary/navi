@@ -265,7 +265,8 @@ jobs:
             ### 优化
             - 🎨 优化提示弹窗样式
             - ⚡️ 修复启动时重复加载数据
-            - 🐛 优化桌面安装程序
+            - 🍥 优化桌面安装程序
+            - 🐛 修复Android版本号
 
           draft: false
           prerelease: false
