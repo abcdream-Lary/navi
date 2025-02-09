@@ -281,8 +281,8 @@ jobs:
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
           
-          # 获取release说明
-          NOTES="${{ github.event.release.body }}"
+          # 获取release说明并处理特殊字符
+          NOTES=$(echo '${{ github.event.release.body }}' | jq -aRs .)
           
           # 构建下载链接
           WINDOWS_PORTABLE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-portable-${{ github.ref_name }}.zip"
@@ -291,18 +291,23 @@ jobs:
           RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
           
           # 更新version.json
-          cat > version.json << EOF
-          {
-            "version": "${VERSION}",
-            "releaseNotes": "${NOTES}",
-            "downloadUrls": {
-              "windows_portable": "${WINDOWS_PORTABLE_URL}",
-              "windows_setup": "${WINDOWS_SETUP_URL}",
-              "android": "${ANDROID_URL}",
-              "releaseUrl": "${RELEASE_URL}"
-            }
-          }
-          EOF
+          jq -n \
+            --arg version "$VERSION" \
+            --arg notes "$NOTES" \
+            --arg windows_portable "$WINDOWS_PORTABLE_URL" \
+            --arg windows_setup "$WINDOWS_SETUP_URL" \
+            --arg android "$ANDROID_URL" \
+            --arg release "$RELEASE_URL" \
+            '{
+              "version": $version,
+              "releaseNotes": ($notes | fromjson),
+              "downloadUrls": {
+                "windows_portable": $windows_portable,
+                "windows_setup": $windows_setup,
+                "android": $android,
+                "releaseUrl": $release
+              }
+            }' > version.json
 
       - name: Commit and push changes
         run: |
