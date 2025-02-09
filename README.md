@@ -2,8 +2,6 @@
   <img src="assets/icons/app_icon.png" alt="logo" width="120"/>
 </p>
 
-<hr>
-
 <p align="center" style="margin-top: 20px;">一个简洁优雅的导航应用，基于 Flutter 开发</p>
 
 <div align="center">
