@@ -295,8 +295,8 @@ jobs:
             cat << 'EOF' > release_notes.txt
           ## ✨日志
 
-          ### 新版本 ${{ github.ref_name }}
-          - 🚀 发布新版本
+          ### 修复
+          - 🐛 修复Android无法更新的问题
           EOF
           else
             echo "$TAG_MESSAGE" > release_notes.txt
