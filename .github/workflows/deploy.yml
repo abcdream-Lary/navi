@@ -259,32 +259,7 @@ jobs:
           fetch-depth: 0  # 获取完整历史以确保可以正确推送
           token: ${{ secrets.GITHUB_TOKEN }}  # 使用 token 以确保有推送权限
 
-      - name: Download Windows Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-artifacts
-          path: artifacts/windows
-
-      - name: Download Android Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: android-artifacts
-          path: artifacts/android
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            artifacts/windows/navi-setup-${{ github.ref_name }}.exe
-            artifacts/windows/navi-portable-${{ github.ref_name }}.zip
-            artifacts/android/navi-${{ github.ref_name }}.apk
-          name: Release ${{ github.ref_name }}
-          body_path: release_notes.txt
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-
-      - name: Update version.json
+      - name: Generate Release Notes
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
@@ -313,21 +288,51 @@ jobs:
             sed -i '/^[[:space:]]*$/d' release_notes.txt
           fi
           
-          # 如果没有找到日志或文件不存在，使用空日志
+          # 如果没有找到日志或文件不存在，使用默认信息
           if [ ! -s release_notes.txt ]; then
-            echo "" > release_notes.txt
+            echo "Release ${{ github.ref_name }}" > release_notes.txt
           fi
           
           # 显示提取的日志内容以便调试
           echo "Extracted release notes:"
           cat release_notes.txt
-          
+
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-artifacts
+          path: artifacts/windows
+
+      - name: Download Android Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifacts
+          path: artifacts/android
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/windows/navi-setup-${{ github.ref_name }}.exe
+            artifacts/windows/navi-portable-${{ github.ref_name }}.zip
+            artifacts/android/navi-${{ github.ref_name }}.apk
+          name: Release ${{ github.ref_name }}
+          body_path: release_notes.txt
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Update version.json
+        run: |
           # 从文件中读取 release notes
           NOTES=$(cat release_notes.txt)
           
           # 处理release说明中的特殊字符
           NOTES="${NOTES//\"/\\\"}"  # 转义双引号
           NOTES="${NOTES//$'\n'/\\n}"  # 转义换行符
+          
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀
           
           # 构建下载链接
           WINDOWS_PORTABLE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-portable-${{ github.ref_name }}.zip"
