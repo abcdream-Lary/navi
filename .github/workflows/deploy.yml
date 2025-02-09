@@ -264,61 +264,35 @@ jobs:
           name: android-artifacts
           path: artifacts/android
 
-      - name: Create Release Notes
-        run: |
-          # 创建 release notes
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
-          if [ -z "$TAG_MESSAGE" ]; then
-            cat << 'EOF' > release_notes.txt
-          ## ✨日志
-
-          ### 新版本 ${{ github.ref_name }}
-          - 🚀 发布新版本
-          EOF
-          else
-            echo "$TAG_MESSAGE" > release_notes.txt
-          fi
-          
-          # 显示release notes内容以便调试
-          echo "Release Notes content:"
-          cat release_notes.txt
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            artifacts/windows/navi-setup-${{ github.ref_name }}.exe
-            artifacts/windows/navi-portable-${{ github.ref_name }}.zip
-            artifacts/android/navi-${{ github.ref_name }}.apk
-          name: Release ${{ github.ref_name }}
-          body_path: release_notes.txt
-          draft: false
-          prerelease: false
-          generate_release_notes: false
-
-      - name: Checkout main branch
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          fetch-depth: 0  # 获取完整历史以确保可以正确推送
-          token: ${{ secrets.GITHUB_TOKEN }}  # 使用 token 以确保有推送权限
-
       - name: Update version.json
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
           
-          # 重新创建 release notes（因为checkout后需要重新创建）
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
-          if [ -z "$TAG_MESSAGE" ]; then
-            cat << 'EOF' > release_notes.txt
-          ## ✨日志
-
-          ### 新版本 ${{ github.ref_name }}
-          - 🚀 发布新版本
-          EOF
-          else
-            echo "$TAG_MESSAGE" > release_notes.txt
+          # 检查是否存在 CHANGELOG.md
+          if [ -f "CHANGELOG.md" ]; then
+            # 提取当前版本的日志
+            # 使用 awk 提取版本之间的内容
+            awk -v ver="${{ github.ref_name }}" '
+              $0 ~ "^## " ver {p=1;print;next}
+              p&&/^## /{p=0;exit}
+              p{print}
+            ' CHANGELOG.md > release_notes.txt
+            
+            # 如果提取的内容为空，尝试不带v前缀再次提取
+            if [ ! -s release_notes.txt ] && [[ "${{ github.ref_name }}" == v* ]]; then
+              VERSION_NO_V="${VERSION#v}"  # 使用之前定义的 VERSION 变量
+              awk -v ver="$VERSION_NO_V" '
+                $0 ~ "^## " ver {p=1;print;next}
+                p&&/^## /{p=0;exit}
+                p{print}
+              ' CHANGELOG.md > release_notes.txt
+            fi
+          fi
+          
+          # 如果没有找到日志或文件不存在，使用空日志
+          if [ ! -s release_notes.txt ]; then
+            echo "" > release_notes.txt
           fi
           
           # 从文件中读取 release notes
