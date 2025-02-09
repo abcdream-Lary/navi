@@ -1,0 +1,55 @@
+name: Update Version JSON
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+          
+      - name: Update version.json
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
+          
+          # 获取release说明
+          NOTES="${{ github.event.release.body }}"
+          
+          # 使用jq处理assets数组
+          WINDOWS_PORTABLE_URL=$(echo '${{ toJson(github.event.release.assets) }}' | jq -r '.[] | select(.name=="navi-portable-${{ github.event.release.tag_name }}.zip") | .browser_download_url')
+          WINDOWS_SETUP_URL=$(echo '${{ toJson(github.event.release.assets) }}' | jq -r '.[] | select(.name=="navi-setup-${{ github.event.release.tag_name }}.exe") | .browser_download_url')
+          ANDROID_URL=$(echo '${{ toJson(github.event.release.assets) }}' | jq -r '.[] | select(.name=="navi-${{ github.event.release.tag_name }}.apk") | .browser_download_url')
+          RELEASE_URL="${{ github.event.release.html_url }}"
+          
+          # 确保所有URL都获取到了
+          if [ -z "$WINDOWS_PORTABLE_URL" ] || [ -z "$WINDOWS_SETUP_URL" ] || [ -z "$ANDROID_URL" ]; then
+            echo "Error: 无法获取所有下载链接"
+            exit 1
+          fi
+          
+          # 更新version.json
+          cat > version.json << EOF
+          {
+            "version": "${VERSION}",
+            "releaseNotes": "${NOTES}",
+            "downloadUrls": {
+              "windows_portable": "${WINDOWS_PORTABLE_URL}",
+              "windows_setup": "${WINDOWS_SETUP_URL}",
+              "android": "${ANDROID_URL}",
+              "releaseUrl": "${RELEASE_URL}"
+            }
+          }
+          EOF
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add version.json
+          git commit -m "Update version.json for release ${{ github.event.release.tag_name }}"
+          git push 

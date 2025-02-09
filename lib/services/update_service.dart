@@ -12,8 +12,13 @@ import '../widgets/update_dialog.dart';
 class UpdateService {
   static const String _owner = 'abcdream-Lary'; // GitHub 用户名
   static const String _repo = 'navi'; // 仓库名称
-  static const String _apiUrl =
-      'https://api.github.com/repos/$_owner/$_repo/releases/latest';
+  // 使用多个CDN源
+  static const List<String> _apiUrls = [
+    'https://cdn.jsdelivr.net/gh/$_owner/$_repo/version.json',
+    'https://raw.githubusercontent.com/$_owner/$_repo/main/version.json',
+    'https://fastly.jsdelivr.net/gh/$_owner/$_repo/version.json',
+    'https://gcore.jsdelivr.net/gh/$_owner/$_repo/version.json'
+  ];
   static const String _releaseUrl =
       'https://github.com/$_owner/$_repo/releases/latest';
 
@@ -79,50 +84,60 @@ class UpdateService {
       final now = DateTime.now();
       if (_lastCheckTime != null &&
           _cachedVersionInfo != null &&
-          now.difference(_lastCheckTime!) < const Duration(minutes: 20)) {
+          now.difference(_lastCheckTime!) < const Duration(minutes: 10)) {
         debugPrint('使用缓存的版本信息');
         final hasUpdate =
             _compareVersions(currentVersion, _cachedVersionInfo!.version);
         return (hasUpdate, hasUpdate ? _cachedVersionInfo : null);
       }
 
-      // 获取最新版本信息
-      final response = await http.get(
-        Uri.parse(_apiUrl),
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Navi-App',
-        },
-      ).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () {
-          throw TimeoutException('网络请求超时，请检查网络连接');
-        },
-      );
+      // 尝试所有API源
+      Exception? lastError;
+      for (final apiUrl in _apiUrls) {
+        try {
+          debugPrint('尝试从 $apiUrl 获取更新信息');
+          final response = await http.get(
+            Uri.parse(apiUrl),
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'Navi-App',
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+            },
+          ).timeout(
+            const Duration(seconds: 30),
+            onTimeout: () {
+              throw TimeoutException('网络请求超时，尝试其他源');
+            },
+          );
 
-      if (response.statusCode != 200) {
-        if (response.statusCode == 404) {
-          throw Exception('未找到更新信息');
-        } else if (response.statusCode == 403) {
-          throw Exception('访问受限，请稍后再试');
-        } else {
-          throw Exception('获取版本信息失败: HTTP ${response.statusCode}');
+          if (response.statusCode == 200) {
+            final json = jsonDecode(response.body);
+            final latestVersion = VersionInfo.fromJson(json);
+            debugPrint('最新版本: ${latestVersion.version}');
+
+            // 比较版本号
+            final hasUpdate =
+                _compareVersions(currentVersion, latestVersion.version);
+            debugPrint('是否有更新: $hasUpdate');
+
+            // 更新缓存
+            _cachedVersionInfo = latestVersion;
+            _lastCheckTime = now;
+
+            return (hasUpdate, hasUpdate ? latestVersion : null);
+          } else {
+            lastError = Exception('API返回错误: HTTP ${response.statusCode}');
+            continue;
+          }
+        } catch (e) {
+          lastError = e is Exception ? e : Exception(e.toString());
+          continue;
         }
       }
 
-      final json = jsonDecode(response.body);
-      final latestVersion = VersionInfo.fromJson(json);
-      debugPrint('最新版本: ${latestVersion.version}');
-
-      // 比较版本号
-      final hasUpdate = _compareVersions(currentVersion, latestVersion.version);
-      debugPrint('是否有更新: $hasUpdate');
-
-      // 更新缓存
-      _cachedVersionInfo = latestVersion;
-      _lastCheckTime = now;
-
-      return (hasUpdate, hasUpdate ? latestVersion : null);
+      // 所有源都失败了
+      throw lastError ?? Exception('所有更新源都无法访问');
     } catch (e) {
       if (e is SocketException) {
         throw Exception('网络连接失败，请检查网络设置或者尝试使用代理');
@@ -160,7 +175,7 @@ class UpdateService {
 
   // 获取平台
   static String getPlatform() {
-    if (Platform.isWindows) return 'windows';
+    if (Platform.isWindows) return 'windows_portable'; // 默认使用便携版，用户也可以在UI中选择安装版
     if (Platform.isAndroid) return 'android';
     throw Exception('不支持的平台');
   }
