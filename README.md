@@ -1,19 +1,15 @@
+<p align="center" style="margin-top: 30px;">
+  <img src="assets/icons/app_icon.png" alt="logo" width="120"/>
+</p>
+
+<p align="center" style="margin: 30px 0px 15px 0px;">一个简洁优雅的导航应用，基于 Flutter 开发</p>
+
 <div align="center">
-  <img src="assets/icons/app_icon.png" alt="logo" width="120" style="margin-top: 30px"/>
 
-  <p style="margin: 20px 0 15px 0; font-size: 16px">一个简洁优雅的导航应用，基于 Flutter 开发</p>
+![](https://img.shields.io/static/v1?label=💻&message=Windows%20%26%20Android&color=ffffff&labelColor=ffffff&style=flat)
+![](https://img.shields.io/static/v1?label=📦&message=v1.0.0&color=ffffff&labelColor=ffffff&style=flat)
+![](https://img.shields.io/static/v1?label=📜&message=MIT&color=ffffff&labelColor=ffffff&style=flat)
 
-  <p>
-    <a style="text-decoration: none; background: #f6f8fa; padding: 5px 10px; border-radius: 15px; color: #24292e; font-size: 12px; margin: 0 5px;">
-      💻 Windows & Android
-    </a>
-    <a href="https://github.com/abcdream-Lary/navi/releases" style="text-decoration: none; background: #f6f8fa; padding: 5px 10px; border-radius: 15px; color: #24292e; font-size: 12px; margin: 0 5px;">
-      📦 <img src="https://img.shields.io/github/v/release/abcdream-Lary/navi?style=flat-square&color=f6f8fa&label" style="vertical-align: -8px; margin: 0 -5px;margin: 1px -5px;" height="24.5"/>
-    </a>
-    <a href="LICENSE" style="text-decoration: none; background: #f6f8fa; padding: 5px 10px; border-radius: 15px; color: #24292e; font-size: 12px; margin: 0 5px;">
-      📜 MIT License
-    </a>
-  </p>
 </div>
 
 ## ✨ 特性
@@ -40,3 +36,5 @@
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=60&section=footer"/>
 </div>
+
+
