@@ -2,13 +2,15 @@
   <img src="assets/icons/app_icon.png" alt="logo" width="120"/>
 </p>
 
-<p align="center" style="margin: 30px 0px 15px 0px;">一个简洁优雅的导航应用，基于 Flutter 开发</p>
+---
+
+<p align="center" style="margin-top: 20px;">一个简洁优雅的导航应用，基于 Flutter 开发</p>
 
 <div align="center">
 
-![](https://img.shields.io/static/v1?label=💻&message=Windows%20%26%20Android&color=ffffff&labelColor=ffffff&style=flat)
-[![](https://img.shields.io/github/v/release/abcdream-Lary/navi?label=📦&color=ffffff&labelColor=ffffff)](https://github.com/abcdream-Lary/navi/releases/latest)
-[![](https://img.shields.io/static/v1?label=📜&message=MIT&color=ffffff&labelColor=ffffff&style=flat)](LICENSE)
+![](https://img.shields.io/static/v1?label=💻&message=Windows%20%26%20Android&color=2ea44f&style=flat-square)
+[![](https://img.shields.io/github/v/release/abcdream-Lary/navi?label=📦&color=2ea44f&style=flat-square)](https://github.com/abcdream-Lary/navi/releases/latest)
+[![](https://img.shields.io/static/v1?label=📜&message=MIT&color=2ea44f&style=flat-square)](LICENSE)
 
 </div>
 
@@ -31,10 +33,17 @@
 
 ## 📄 开源协议
 
-- 本项目采用 [MIT 开源协议](LICENSE)。您可以自由使用、修改和分发，但需要保留原始版权和许可声明。
+- 本项目采用 [MIT 开源协议](LICENSE)。
+- 您可以自由使用、修改和分发，但需要保留原始版权和许可声明。
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=60&section=footer"/>
+
+---
+
+<sub>
+  <b>Navi</b>
+  &nbsp;·&nbsp;
+  <i>让导航更简单</i>
+</sub>
+
 </div>
-
-
