@@ -36,11 +36,7 @@
 - 本项目采用 [MIT 开源协议](LICENSE)。
 - 您可以自由使用、修改和分发，但需要保留原始版权和许可声明。
 
-<div align="center">
-
-<img src="https://capsule-render.vercel.app/api?type=cylinder&color=0:2ea44f,100:4ecdc4&height=40&section=footer"/>
-
-</div>
+---
 
 <div align="center">
 
