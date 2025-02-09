@@ -1,10 +1,10 @@
 {
-  "version": "0.1.7",
-  "releaseNotes": "## ✨日志\n\n### 优化\n- 🔄 优化版本检测机制，提高检测稳定性\n- 🛠️ 优化安装程序，修复重复安装问题\n- 🌐 优化 CDN 访问策略，提升更新检测速度\n\n### 修复\n- 🐛 修复安装时程序未关闭的问题\n- 🔍 修复版本检测缓存导致的问题",
+  "version": "0.1.8",
+  "releaseNotes": "## ✨日志\n\n### 修复\n- 🐛 修复Android无法更新的问题",
   "downloadUrls": {
-    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.7/navi-portable-v0.1.7.zip",
-    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.7/navi-setup-v0.1.7.exe",
-    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.7/navi-v0.1.7.apk",
-    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.7"
+    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-portable-v0.1.8.zip",
+    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-setup-v0.1.8.exe",
+    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-v0.1.8.apk",
+    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.8"
   }
 }
