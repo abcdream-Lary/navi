@@ -264,16 +264,6 @@ jobs:
           name: android-artifacts
           path: artifacts/android
 
-      - name: Set Release Notes
-        id: release_notes
-        run: |
-          cat << 'EOF' > release_notes.txt
-          ## ✨日志
-
-          ### 修复
-          - 🐛 修复Android无法更新的问题
-          EOF
-          
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -286,14 +276,6 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: false
-          
-      # 更新 version.json
-      - name: Save Release Notes
-        run: |
-          NOTES=$(cat release_notes.txt)
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$NOTES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
 
       - name: Checkout main branch
         uses: actions/checkout@v3
@@ -306,6 +288,19 @@ jobs:
         run: |
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
+          
+          # 创建 release notes
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          if [ -z "$TAG_MESSAGE" ]; then
+            cat << 'EOF' > release_notes.txt
+          ## ✨日志
+
+          ### 新版本 ${{ github.ref_name }}
+          - 🚀 发布新版本
+          EOF
+          else
+            echo "$TAG_MESSAGE" > release_notes.txt
+          fi
           
           # 从文件中读取 release notes
           NOTES=$(cat release_notes.txt)
