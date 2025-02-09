@@ -2,7 +2,7 @@
   <img src="assets/icons/app_icon.png" alt="logo" width="120"/>
 </p>
 
----
+<hr>
 
 <p align="center" style="margin-top: 20px;">一个简洁优雅的导航应用，基于 Flutter 开发</p>
 
@@ -36,7 +36,7 @@
 - 本项目采用 [MIT 开源协议](LICENSE)。
 - 您可以自由使用、修改和分发，但需要保留原始版权和许可声明。
 
----
+<hr>
 
 <div align="center">
 
