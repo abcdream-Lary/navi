@@ -23,13 +23,43 @@ class UpdateService {
       'https://github.com/$_owner/$_repo/releases/latest';
 
   static PackageInfo? _packageInfo;
-  static DateTime? _lastCheckTime;
-  static VersionInfo? _cachedVersionInfo;
+  static int _currentApiIndex = 0;
+  static Map<String, DateTime> _apiLastUsedTime = {};
+
+  // 获取下一个可用的API URL
+  static String _getNextApiUrl() {
+    final now = DateTime.now();
+    String? selectedUrl;
+
+    // 尝试所有URL直到找到一个可用的
+    for (int i = 0; i < _apiUrls.length; i++) {
+      final url = _apiUrls[(_currentApiIndex + i) % _apiUrls.length];
+      final lastUsed = _apiLastUsedTime[url];
+
+      // 如果这个URL从未使用过或者距离上次使用已经超过5秒
+      if (lastUsed == null || now.difference(lastUsed).inSeconds >= 5) {
+        selectedUrl = url;
+        _currentApiIndex = (_currentApiIndex + i + 1) % _apiUrls.length;
+        _apiLastUsedTime[url] = now;
+        break;
+      }
+    }
+
+    // 如果所有URL都在冷却中，使用等待时间最长的那个
+    if (selectedUrl == null) {
+      selectedUrl = _apiUrls[_currentApiIndex];
+      _apiLastUsedTime[selectedUrl] = now;
+      _currentApiIndex = (_currentApiIndex + 1) % _apiUrls.length;
+    }
+
+    return selectedUrl;
+  }
 
   // 初始化
   static Future<void> initialize() async {
     try {
       _packageInfo = await PackageInfo.fromPlatform();
+      _apiLastUsedTime.clear();
     } catch (e) {
       debugPrint('初始化版本信息失败: $e');
     }
@@ -81,22 +111,16 @@ class UpdateService {
       final currentVersion = _packageInfo?.version ?? '0.0.0';
       debugPrint('当前版本: $currentVersion');
 
-      // 检查缓存
-      final now = DateTime.now();
-      if (_lastCheckTime != null &&
-          _cachedVersionInfo != null &&
-          now.difference(_lastCheckTime!) < const Duration(minutes: 10)) {
-        debugPrint('使用缓存的版本信息');
-        final hasUpdate =
-            _compareVersions(currentVersion, _cachedVersionInfo!.version);
-        return (hasUpdate, hasUpdate ? _cachedVersionInfo : null);
-      }
-
-      // 尝试所有API源
+      // 尝试获取更新信息
       Exception? lastError;
-      for (final apiUrl in _apiUrls) {
+      final maxRetries = _apiUrls.length * 2; // 最多尝试次数
+      int retryCount = 0;
+
+      while (retryCount < maxRetries) {
         try {
+          final apiUrl = _getNextApiUrl();
           debugPrint('正在尝试从 $apiUrl 获取更新信息...');
+
           final response = await http.get(
             Uri.parse(apiUrl),
             headers: {
@@ -106,55 +130,47 @@ class UpdateService {
               'Pragma': 'no-cache',
             },
           ).timeout(
-            const Duration(seconds: 30),
+            const Duration(seconds: 10), // 缩短超时时间
             onTimeout: () {
               debugPrint('请求超时: $apiUrl');
               throw TimeoutException('网络请求超时，尝试其他源');
             },
           );
 
-          debugPrint('API响应状态码: ${response.statusCode}');
           if (response.statusCode == 200) {
-            debugPrint('成功获取响应数据: ${response.body}');
+            debugPrint('成功获取响应数据');
             final json = jsonDecode(response.body);
             final latestVersion = VersionInfo.fromJson(json);
-            debugPrint('解析的最新版本信息: ${latestVersion.version}');
 
             // 比较版本号
             final hasUpdate =
                 _compareVersions(currentVersion, latestVersion.version);
-            debugPrint('版本比较结果 - 是否有更新: $hasUpdate');
-
-            // 更新缓存
-            _cachedVersionInfo = latestVersion;
-            _lastCheckTime = now;
 
             return (hasUpdate, hasUpdate ? latestVersion : null);
+          } else if (response.statusCode == 403) {
+            debugPrint('API 请求限制，等待后重试: $apiUrl');
+            await Future.delayed(const Duration(seconds: 2));
+            lastError = Exception('API 请求过于频繁，请稍后再试');
           } else {
-            debugPrint(
-                'API请求失败，状态码: ${response.statusCode}，响应体: ${response.body}');
+            debugPrint('API请求失败，状态码: ${response.statusCode}');
             lastError = Exception('API返回错误: HTTP ${response.statusCode}');
-            continue;
           }
         } catch (e) {
-          debugPrint('请求 $apiUrl 时发生错误: $e');
+          debugPrint('请求失败: $e');
           lastError = e is Exception ? e : Exception(e.toString());
-          continue;
         }
+
+        retryCount++;
+        await Future.delayed(const Duration(milliseconds: 500));
       }
 
-      // 所有源都失败了
-      debugPrint('所有更新源都请求失败，最后的错误: $lastError');
       throw lastError ?? Exception('所有更新源都无法访问');
     } catch (e) {
       if (e is SocketException) {
-        debugPrint('网络连接错误: ${e.message}');
         throw Exception('网络连接失败，请检查网络设置或者尝试使用代理');
       } else if (e is TimeoutException) {
-        debugPrint('请求超时: ${e.message}');
         throw Exception('检查更新超时，请稍后重试');
       } else {
-        debugPrint('未预期的错误: $e');
         throw Exception('检查更新失败: ${e.toString()}');
       }
     }
