@@ -45,6 +45,14 @@ class AppTheme {
     scaffoldBackgroundColor: white,
     fontFamily: fontFamily,
     useMaterial3: true,
+    // 添加对话框主题
+    dialogTheme: DialogTheme(
+      backgroundColor: white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: smoothBorderRadius,
+      ),
+    ),
     // 添加全局圆角主题
     cardTheme: CardTheme(
       shape: RoundedRectangleBorder(
