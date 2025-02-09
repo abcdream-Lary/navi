@@ -137,26 +137,44 @@ class UpdateService {
             },
           );
 
+          debugPrint('响应状态码: ${response.statusCode}');
+          debugPrint('响应头: ${response.headers}');
+
           if (response.statusCode == 200) {
-            debugPrint('成功获取响应数据');
-            final json = jsonDecode(response.body);
-            final latestVersion = VersionInfo.fromJson(json);
+            debugPrint('成功获取响应数据: ${response.body}');
+            try {
+              final json = jsonDecode(response.body);
+              final latestVersion = VersionInfo.fromJson(json);
+              debugPrint('解析的版本信息: $latestVersion');
 
-            // 比较版本号
-            final hasUpdate =
-                _compareVersions(currentVersion, latestVersion.version);
+              // 比较版本号
+              final hasUpdate =
+                  _compareVersions(currentVersion, latestVersion.version);
+              debugPrint('版本比较结果: $hasUpdate');
 
-            return (hasUpdate, hasUpdate ? latestVersion : null);
+              return (hasUpdate, hasUpdate ? latestVersion : null);
+            } catch (e) {
+              debugPrint('解析响应数据失败: $e');
+              throw Exception('解析版本信息失败: $e');
+            }
           } else if (response.statusCode == 403) {
             debugPrint('API 请求限制，等待后重试: $apiUrl');
+            debugPrint('响应内容: ${response.body}');
             await Future.delayed(const Duration(seconds: 2));
             lastError = Exception('API 请求过于频繁，请稍后再试');
           } else {
             debugPrint('API请求失败，状态码: ${response.statusCode}');
+            debugPrint('响应内容: ${response.body}');
             lastError = Exception('API返回错误: HTTP ${response.statusCode}');
           }
         } catch (e) {
           debugPrint('请求失败: $e');
+          if (e is SocketException) {
+            debugPrint('网络错误详情: ${e.message}');
+            debugPrint('地址: ${e.address}');
+            debugPrint('端口: ${e.port}');
+            debugPrint('操作系统错误码: ${e.osError}');
+          }
           lastError = e is Exception ? e : Exception(e.toString());
         }
 
@@ -166,10 +184,11 @@ class UpdateService {
 
       throw lastError ?? Exception('所有更新源都无法访问');
     } catch (e) {
+      debugPrint('检查更新时发生错误: $e');
       if (e is SocketException) {
-        throw Exception('网络连接失败，请检查网络设置或者尝试使用代理');
+        throw Exception('网络连接失败，请检查网络设置或者尝试使用代理\n错误详情: ${e.message}');
       } else if (e is TimeoutException) {
-        throw Exception('检查更新超时，请稍后重试');
+        throw Exception('检查更新超时，请稍后重试\n错误详情: ${e.message}');
       } else {
         throw Exception('检查更新失败: ${e.toString()}');
       }
