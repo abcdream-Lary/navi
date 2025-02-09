@@ -13,6 +13,23 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    def pubspecFile = new File(project.projectDir.parentFile, 'pubspec.yaml')
+    def pubspecContent = pubspecFile.text
+    def versionMatch = pubspecContent =~ /version:\s+(\d+\.\d+\.\d+)/
+    if (versionMatch) {
+        flutterVersionName = versionMatch[0][1]
+    } else {
+        flutterVersionName = '1.0.0'
+    }
+}
+
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
@@ -40,8 +57,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 2
-        versionName "0.1.5"
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
     }
 
     signingConfigs {
