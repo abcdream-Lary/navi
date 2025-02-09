@@ -1,10 +1,10 @@
 {
-    "version": "0.1.5",
-    "releaseNotes": "当前版本更新说明",
-    "downloadUrls": {
-      "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.5/navi-portable-v0.1.5.zip",
-      "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.5/navi-setup-v0.1.5.exe",
-      "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.5/navi-v0.1.5.apk",
-      "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/latest"
-    }
+  "version": "0.1.5",
+  "releaseNotes": "",
+  "downloadUrls": {
+    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.5/navi-portable-v0.1.5.zip",
+    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.5/navi-setup-v0.1.5.exe",
+    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.5/navi-v0.1.5.apk",
+    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.5"
   }
+}
