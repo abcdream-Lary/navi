@@ -535,48 +535,46 @@ class _SettingDetailScreenState extends State<SettingDetailScreen> {
                       ),
                       child: Container(
                         width: 320,
-                        height: 160,
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
-                          top: 24,
-                          bottom: 8,
+                        constraints: BoxConstraints(maxHeight: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.warning_amber_rounded,
-                                      color: Colors.red,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '提示',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.textColor,
-                                      ),
-                                    ),
-                                  ],
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: Colors.red,
+                                  size: 20,
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(width: 8),
                                 Text(
+                                  '提示',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Flexible(
+                              child: SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                child: Text(
                                   '检查更新失败：${e.toString().contains('403') ? '请求次数过多，请一小时后再尝试' : e}',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: AppTheme.textColor,
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [

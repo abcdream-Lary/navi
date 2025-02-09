@@ -2422,15 +2422,13 @@ class _DesktopSettingsScreenState extends State<DesktopSettingsScreen>
                         ),
                         child: Container(
                           width: 320,
-                          height: 160,
-                          padding: const EdgeInsets.only(
-                            left: 24,
-                            right: 24,
-                            top: 24,
-                            bottom: 8,
+                          constraints: BoxConstraints(maxHeight: 200),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 20,
                           ),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Column(
@@ -2455,15 +2453,20 @@ class _DesktopSettingsScreenState extends State<DesktopSettingsScreen>
                                     ],
                                   ),
                                   const SizedBox(height: 16),
-                                  Text(
-                                    '检查更新失败：${e.toString().contains('403') ? '请求次数过多，请一小时后再尝试' : e}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppTheme.textColor,
+                                  Scrollbar(
+                                    child: SingleChildScrollView(
+                                      child: Text(
+                                        '检查更新失败：${e.toString().contains('403') ? '请求次数过多，请一小时后再尝试' : e}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: AppTheme.textColor,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 16),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [

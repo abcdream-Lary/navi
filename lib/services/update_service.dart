@@ -73,6 +73,7 @@ class UpdateService {
     try {
       // 确保已初始化
       if (_packageInfo == null) {
+        debugPrint('PackageInfo 未初始化，正在初始化...');
         await initialize();
       }
 
@@ -95,7 +96,7 @@ class UpdateService {
       Exception? lastError;
       for (final apiUrl in _apiUrls) {
         try {
-          debugPrint('尝试从 $apiUrl 获取更新信息');
+          debugPrint('正在尝试从 $apiUrl 获取更新信息...');
           final response = await http.get(
             Uri.parse(apiUrl),
             headers: {
@@ -107,19 +108,22 @@ class UpdateService {
           ).timeout(
             const Duration(seconds: 30),
             onTimeout: () {
+              debugPrint('请求超时: $apiUrl');
               throw TimeoutException('网络请求超时，尝试其他源');
             },
           );
 
+          debugPrint('API响应状态码: ${response.statusCode}');
           if (response.statusCode == 200) {
+            debugPrint('成功获取响应数据: ${response.body}');
             final json = jsonDecode(response.body);
             final latestVersion = VersionInfo.fromJson(json);
-            debugPrint('最新版本: ${latestVersion.version}');
+            debugPrint('解析的最新版本信息: ${latestVersion.version}');
 
             // 比较版本号
             final hasUpdate =
                 _compareVersions(currentVersion, latestVersion.version);
-            debugPrint('是否有更新: $hasUpdate');
+            debugPrint('版本比较结果 - 是否有更新: $hasUpdate');
 
             // 更新缓存
             _cachedVersionInfo = latestVersion;
@@ -127,23 +131,30 @@ class UpdateService {
 
             return (hasUpdate, hasUpdate ? latestVersion : null);
           } else {
+            debugPrint(
+                'API请求失败，状态码: ${response.statusCode}，响应体: ${response.body}');
             lastError = Exception('API返回错误: HTTP ${response.statusCode}');
             continue;
           }
         } catch (e) {
+          debugPrint('请求 $apiUrl 时发生错误: $e');
           lastError = e is Exception ? e : Exception(e.toString());
           continue;
         }
       }
 
       // 所有源都失败了
+      debugPrint('所有更新源都请求失败，最后的错误: $lastError');
       throw lastError ?? Exception('所有更新源都无法访问');
     } catch (e) {
       if (e is SocketException) {
+        debugPrint('网络连接错误: ${e.message}');
         throw Exception('网络连接失败，请检查网络设置或者尝试使用代理');
       } else if (e is TimeoutException) {
+        debugPrint('请求超时: ${e.message}');
         throw Exception('检查更新超时，请稍后重试');
       } else {
+        debugPrint('未预期的错误: $e');
         throw Exception('检查更新失败: ${e.toString()}');
       }
     }
