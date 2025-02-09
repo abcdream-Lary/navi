@@ -308,8 +308,8 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add version.json
-          git commit -m "Update version.json for release ${{ github.ref_name }}"
-          git push
+          git commit --author="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>" -m "chore: update version.json for ${{ github.ref_name }}"
+          git push --force-with-lease
