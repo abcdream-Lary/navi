@@ -1,6 +1,6 @@
 {
   "version": "0.1.8",
-  "releaseNotes": "## ✨日志\n\n### 修复\n- 🐛 修复Android无法更新的问题",
+  "releaseNotes": "## ✨日志\n### 修复\n- 🐛 修复Android无法更新的问题",
   "downloadUrls": {
     "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-portable-v0.1.8.zip",
     "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-setup-v0.1.8.exe",
