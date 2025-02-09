@@ -8,9 +8,9 @@
 
 <div align="center">
 
-![](https://img.shields.io/static/v1?label=💻&message=Windows%20%26%20Android&color=2ea44f&style=flat-square)
-[![](https://img.shields.io/github/v/release/abcdream-Lary/navi?label=📦&color=2ea44f&style=flat-square)](https://github.com/abcdream-Lary/navi/releases/latest)
-[![](https://img.shields.io/static/v1?label=📜&message=MIT&color=2ea44f&style=flat-square)](LICENSE)
+![](https://img.shields.io/static/v1?label=💻&message=Windows%20%26%20Android&color=33ab63&style=round)
+[![](https://img.shields.io/github/v/release/abcdream-Lary/navi?label=📦&color=33ab63&style=round)](https://github.com/abcdream-Lary/navi/releases/latest)
+[![](https://img.shields.io/static/v1?label=📜&message=MIT&color=33ab63&style=round)](LICENSE)
 
 </div>
 
@@ -38,7 +38,11 @@
 
 <div align="center">
 
----
+<img src="https://capsule-render.vercel.app/api?type=cylinder&color=0:2ea44f,100:4ecdc4&height=40&section=footer"/>
+
+</div>
+
+<div align="center">
 
 <sub>
   <b>Navi</b>
