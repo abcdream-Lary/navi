@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -92,9 +93,21 @@ class UpdateService {
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'Navi-App',
         },
+      ).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          throw TimeoutException('网络请求超时，请检查网络连接');
+        },
       );
+
       if (response.statusCode != 200) {
-        throw Exception('获取版本信息失败: ${response.statusCode}');
+        if (response.statusCode == 404) {
+          throw Exception('未找到更新信息');
+        } else if (response.statusCode == 403) {
+          throw Exception('访问受限，请稍后再试');
+        } else {
+          throw Exception('获取版本信息失败: HTTP ${response.statusCode}');
+        }
       }
 
       final json = jsonDecode(response.body);
@@ -111,7 +124,13 @@ class UpdateService {
 
       return (hasUpdate, hasUpdate ? latestVersion : null);
     } catch (e) {
-      throw Exception('检查更新失败: $e');
+      if (e is SocketException) {
+        throw Exception('网络连接失败，请检查网络设置或者尝试使用代理');
+      } else if (e is TimeoutException) {
+        throw Exception('检查更新超时，请稍后重试');
+      } else {
+        throw Exception('检查更新失败: ${e.toString()}');
+      }
     }
   }
 
