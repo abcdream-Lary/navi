@@ -149,6 +149,14 @@ class _MobileHomeScreenState extends State<MobileHomeScreen> {
                     final categories = provider.categories
                         .where((cat) => cat.id != 'uncategorized')
                         .toList();
+
+                    // 添加置顶排序逻辑
+                    categories.sort((a, b) {
+                      if (a.isPinned && !b.isPinned) return -1;
+                      if (!a.isPinned && b.isPinned) return 1;
+                      return 0;
+                    });
+
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
