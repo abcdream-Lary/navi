@@ -1,10 +1,10 @@
 {
-  "version": "0.1.8",
-  "releaseNotes": "## ✨日志\n### 修复\n- 🐛 修复Android无法更新的问题",
+  "version": "0.1.9",
+  "releaseNotes": "## ✨日志\n### 修复\n- 🐛 修复Android主页分类按钮无法置顶的问题",
   "downloadUrls": {
-    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-portable-v0.1.8.zip",
-    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-setup-v0.1.8.exe",
-    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.8/navi-v0.1.8.apk",
-    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.8"
+    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-portable-v0.1.9.zip",
+    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-setup-v0.1.9.exe",
+    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-v0.1.9.apk",
+    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.9"
   }
 }
