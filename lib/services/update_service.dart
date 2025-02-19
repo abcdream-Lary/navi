@@ -115,6 +115,8 @@ class UpdateService {
       Exception? lastError;
       final maxRetries = _apiUrls.length * 2; // 最多尝试次数
       int retryCount = 0;
+      VersionInfo? latestVersionInfo;
+      DateTime? latestTimestamp;
 
       while (retryCount < maxRetries) {
         try {
@@ -130,7 +132,7 @@ class UpdateService {
               'Pragma': 'no-cache',
             },
           ).timeout(
-            const Duration(seconds: 10), // 缩短超时时间
+            const Duration(seconds: 10),
             onTimeout: () {
               debugPrint('请求超时: $apiUrl');
               throw TimeoutException('网络请求超时，尝试其他源');
@@ -138,21 +140,30 @@ class UpdateService {
           );
 
           debugPrint('响应状态码: ${response.statusCode}');
-          debugPrint('响应头: ${response.headers}');
 
           if (response.statusCode == 200) {
             debugPrint('成功获取响应数据: ${response.body}');
             try {
               final json = jsonDecode(response.body);
-              final latestVersion = VersionInfo.fromJson(json);
-              debugPrint('解析的版本信息: $latestVersion');
+              final versionInfo = VersionInfo.fromJson(json);
+              debugPrint('解析的版本信息: $versionInfo');
 
-              // 比较版本号
-              final hasUpdate =
-                  _compareVersions(currentVersion, latestVersion.version);
-              debugPrint('版本比较结果: $hasUpdate');
+              // 检查时间戳，保留时间戳最新的版本信息
+              if (latestTimestamp == null ||
+                  versionInfo.timestamp.isAfter(latestTimestamp)) {
+                latestTimestamp = versionInfo.timestamp;
+                latestVersionInfo = versionInfo;
+                debugPrint('发现更新的版本信息，时间戳: ${versionInfo.timestamp}');
+              }
 
-              return (hasUpdate, hasUpdate ? latestVersion : null);
+              // 如果已经尝试了所有源，使用最新的版本信息进行比较
+              if (retryCount >= _apiUrls.length - 1 &&
+                  latestVersionInfo != null) {
+                final hasUpdate =
+                    _compareVersions(currentVersion, latestVersionInfo.version);
+                debugPrint('版本比较结果: $hasUpdate');
+                return (hasUpdate, hasUpdate ? latestVersionInfo : null);
+              }
             } catch (e) {
               debugPrint('解析响应数据失败: $e');
               throw Exception('解析版本信息失败: $e');

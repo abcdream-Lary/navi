@@ -334,6 +334,9 @@ jobs:
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀
           
+          # 获取当前时间（UTC）
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
           # 构建下载链接
           WINDOWS_PORTABLE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-portable-${{ github.ref_name }}.zip"
           WINDOWS_SETUP_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-setup-${{ github.ref_name }}.exe"
@@ -345,6 +348,7 @@ jobs:
           {
             "version": "${VERSION}",
             "releaseNotes": "${NOTES}",
+            "timestamp": "${TIMESTAMP}",
             "downloadUrls": {
               "windows_portable": "${WINDOWS_PORTABLE_URL}",
               "windows_setup": "${WINDOWS_SETUP_URL}",
