@@ -1,10 +1,11 @@
 {
   "version": "0.1.0",
-  "releaseNotes": "## ✨日志\n### 🐛 全新版本发布",
+  "releaseNotes": "## ✨日志\n### 核心功能\n- ✨ 导航主页基础布局与交互实现\n- ✨ 设置页面基础功能\n- ✨ 数据备份与恢复功能\n- ✨ 支持 Windows 与 Android 平台\n- ✨ 支持 Windows 便携版本\n- ✨ 应用启动页过渡动画效果\n### 优化\n- 🔄 优化版本检测机制与更新功能\n- 🌐 优化 CDN 访问策略，提升更新速度\n- 🎨 优化界面显示效果\n- ⚡️ 提升应用启动速度\n- 🛠️ 优化安装程序与 Android 构建配置\n### 修复\n- 🐛 修复 Android 相关操作问题\n- 🐛 修复版本显示与检查问题\n- 🐛 修复插件错误问题",
+  "timestamp": "2025-05-20T15:21:40Z",
   "downloadUrls": {
-    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-portable-v0.1.9.zip",
-    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-setup-v0.1.9.exe",
-    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-v0.1.9.apk",
-    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.9"
+    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.0/navi-portable-v0.1.0.zip",
+    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.0/navi-setup-v0.1.0.exe",
+    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.0/navi-v0.1.0.apk",
+    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.0"
   }
 }
