@@ -1,0 +1,366 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+        cache: true
+        
+    - name: Get dependencies
+      run: flutter pub get
+      
+    - name: Build Windows
+      run: flutter build windows --release
+      
+    - name: Create Portable ZIP
+      run: |
+        Write-Host "创建便携版 ZIP 包..."
+        New-Item -ItemType Directory -Force -Path "Output"
+        $sourcePath = "build\windows\x64\runner\Release\*"
+        $destPath = "Output\navi-portable-${{ github.ref_name }}.zip"
+        Write-Host "源路径: $sourcePath"
+        Write-Host "目标路径: $destPath"
+        Compress-Archive -Path $sourcePath -DestinationPath $destPath -Force
+        if (-not (Test-Path $destPath)) {
+          Write-Error "便携版 ZIP 包创建失败"
+          exit 1
+        }
+        Write-Host "便携版 ZIP 包创建完成"
+      shell: pwsh
+      
+    - name: Download Inno Setup
+      run: |
+        Write-Host "开始下载 Inno Setup..."
+        curl -L -o inno-setup.exe https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe
+        if (-not (Test-Path "inno-setup.exe")) {
+          Write-Error "Inno Setup 下载失败"
+          exit 1
+        }
+        Write-Host "安装 Inno Setup..."
+        .\inno-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+        Write-Host "等待安装完成..."
+        Start-Sleep -Seconds 10
+        Write-Host "复制中文语言文件..."
+        if (-not (Test-Path ".github/workflows/ChineseSimplified.isl")) {
+          Write-Error "找不到中文语言文件"
+          exit 1
+        }
+        Copy-Item -Path ".github/workflows/ChineseSimplified.isl" -Destination "ChineseSimplified.isl" -Force
+        if (-not (Test-Path "ChineseSimplified.isl")) {
+          Write-Error "中文语言文件复制失败"
+          exit 1
+        }
+        Write-Host "语言文件复制完成"
+      shell: pwsh
+      
+    - name: Create Inno Setup Script
+      run: |
+        Write-Host "创建安装脚本..."
+        $content = '#define MyAppName "Navi"' + "`n"
+        $content += '#define MyAppVersion "' + "${{ github.ref_name }}" + '"' + "`n"
+        $version = "${{ github.ref_name }}".TrimStart('v')
+        $versionParts = $version.Split('-')[0].Split('.')
+        while ($versionParts.Length -lt 4) {
+            $versionParts += "0"
+        }
+        $standardVersion = [string]::Join('.', $versionParts)
+        $content += '#define MyAppVersionNumber "' + $standardVersion + '"' + "`n"
+        $content += '#define MyAppPublisher "Your Name"' + "`n"
+        $content += '#define MyAppExeName "navi.exe"' + "`n"
+        $content += "`n"
+        $content += '[Setup]' + "`n"
+        $content += 'AppId={{com.example.navi}}' + "`n"
+        $content += 'AppName={#MyAppName}' + "`n"
+        $content += 'AppVersion={#MyAppVersion}' + "`n"
+        $content += 'AppVerName={#MyAppName} {#MyAppVersion}' + "`n"
+        $content += 'VersionInfoVersion={#MyAppVersionNumber}' + "`n"
+        $content += 'UninstallDisplayName={#MyAppName}' + "`n"
+        $content += 'UninstallDisplayIcon={app}\{#MyAppExeName}' + "`n"
+        $content += 'AppPublisher={#MyAppPublisher}' + "`n"
+        $content += 'AppMutex=com.example.navi.instance' + "`n"
+        $content += 'CloseApplications=yes' + "`n"
+        $content += 'RestartApplications=no' + "`n"
+        $content += 'AllowNetworkDrive=no' + "`n"
+        $content += 'UsePreviousAppDir=yes' + "`n"
+        $content += 'DisableDirPage=auto' + "`n"
+        $content += 'DefaultDirName=D:\{#MyAppName}' + "`n"
+        $content += 'DefaultGroupName={#MyAppName}' + "`n"
+        $content += 'OutputBaseFilename=navi-setup-' + "${{ github.ref_name }}" + "`n"
+        $content += 'OutputDir=Output' + "`n"
+        $content += 'Compression=lzma' + "`n"
+        $content += 'SolidCompression=yes' + "`n"
+        $content += 'WizardStyle=modern' + "`n"
+        $content += "`n"
+        $content += '[Languages]' + "`n"
+        $content += 'Name: "english"; MessagesFile: "compiler:Default.isl"' + "`n"
+        $content += 'Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"' + "`n"
+        $content += "`n"
+        $content += '[Tasks]' + "`n"
+        $content += 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"' + "`n"
+        $content += "`n"
+        $content += '[Files]' + "`n"
+        $content += 'Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs' + "`n"
+        $content += "`n"
+        $content += '[Icons]' + "`n"
+        $content += 'Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"' + "`n"
+        $content += 'Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon' + "`n"
+        $content += '[Code]' + "`n"
+        $content += 'function InitializeSetup(): Boolean;' + "`n"
+        $content += 'var' + "`n"
+        $content += '  InstalledVersion: String;' + "`n"
+        $content += '  MsgResult: Integer;' + "`n"
+        $content += '  Processes: TArrayOfString;' + "`n"
+        $content += '  I: Integer;' + "`n"
+        $content += 'begin' + "`n"
+        $content += '  Result := True;' + "`n"
+        $content += '  if RegValueExists(HKLM, ''Software\Microsoft\Windows\CurrentVersion\Uninstall\{#SetupSetting("AppId")}_is1'', ''DisplayVersion'') then' + "`n"
+        $content += '  begin' + "`n"
+        $content += '    RegQueryStringValue(HKLM, ''Software\Microsoft\Windows\CurrentVersion\Uninstall\{#SetupSetting("AppId")}_is1'', ''DisplayVersion'', InstalledVersion);' + "`n"
+        $content += '    if InstalledVersion = ''{#MyAppVersion}'' then' + "`n"
+        $content += '    begin' + "`n"
+        $content += '      MsgResult := MsgBox(''已安装相同版本，是否重新安装？'', mbConfirmation, MB_YESNO);' + "`n"
+        $content += '      Result := MsgResult = IDYES;' + "`n"
+        $content += '    end;' + "`n"
+        $content += '  end;' + "`n"
+        $content += '  if Result then' + "`n"
+        $content += '  begin' + "`n"
+        $content += '    SetArrayLength(Processes, 1);' + "`n"
+        $content += '    Processes[0] := ''{#MyAppExeName}'';' + "`n"
+        $content += '    repeat' + "`n"
+        $content += '      for I := 0 to GetArrayLength(Processes) - 1 do' + "`n"
+        $content += '        if CheckForMutexes(''com.example.navi.instance'') then' + "`n"
+        $content += '        begin' + "`n"
+        $content += '          MsgResult := MsgBox(''检测到程序正在运行，请关闭后继续安装。'', mbError, MB_RETRYCANCEL);' + "`n"
+        $content += '          if MsgResult = IDCANCEL then' + "`n"
+        $content += '          begin' + "`n"
+        $content += '            Result := False;' + "`n"
+        $content += '            Exit;' + "`n"
+        $content += '          end;' + "`n"
+        $content += '          Break;' + "`n"
+        $content += '        end;' + "`n"
+        $content += '    until not CheckForMutexes(''com.example.navi.instance'') or (Result = False);' + "`n"
+        $content += '  end;' + "`n"
+        $content += 'end;' + "`n"
+        $content += "`n"
+        $content += 'function PrepareToInstall(var NeedsRestart: Boolean): String;' + "`n"
+        $content += 'begin' + "`n"
+        $content += '  Result := '''';' + "`n"
+        $content += 'end;' + "`n"
+        Set-Content -Path "installer.iss" -Value $content -Encoding UTF8
+        Write-Host "安装脚本创建完成"
+        Get-Content "installer.iss"
+      shell: pwsh
+      
+    - name: Build Installer
+      run: |
+        Write-Host "开始构建安装程序..."
+        if (-not (Test-Path "installer.iss")) {
+          Write-Error "找不到安装脚本文件"
+          exit 1
+        }
+        if (-not (Test-Path "ChineseSimplified.isl")) {
+          Write-Error "找不到中文语言文件"
+          exit 1
+        }
+        Write-Host "检查构建目录..."
+        if (-not (Test-Path "build\windows\x64\runner\Release")) {
+          Write-Error "找不到构建输出目录"
+          exit 1
+        }
+        Write-Host "运行 Inno Setup 编译器..."
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Q "installer.iss"
+        if (-not (Test-Path "Output")) {
+          Write-Error "安装程序构建失败"
+          exit 1
+        }
+        Write-Host "安装程序构建完成"
+      shell: pwsh
+
+    - name: Upload Windows Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-artifacts
+        path: |
+          Output/navi-setup-${{ github.ref_name }}.exe
+          Output/navi-portable-${{ github.ref_name }}.zip
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+        cache: true
+        
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Set Version
+      run: |
+        VERSION=${{ github.ref_name }}
+        VERSION_CODE=$(echo $VERSION | sed 's/[^0-9]//g')
+        VERSION_NAME=$(echo $VERSION | sed 's/^v//')
+        echo "flutter.versionCode=$VERSION_CODE" >> android/local.properties
+        echo "flutter.versionName=$VERSION_NAME" >> android/local.properties
+
+    # 构建debug版本，不需要签名
+    - name: Build Android APK
+      run: flutter build apk --debug
+      
+    - name: Rename APK
+      run: |
+        mv build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
+
+    - name: Upload Android Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-artifacts
+        path: build/app/outputs/flutter-apk/navi-${{ github.ref_name }}.apk
+
+  create-release:
+    needs: [build-windows, build-android]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0  # 获取完整历史以确保可以正确推送
+          token: ${{ secrets.GITHUB_TOKEN }}  # 使用 token 以确保有推送权限
+
+      - name: Generate Release Notes
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀（如果有）
+          
+          # 检查是否存在 CHANGELOG.md
+          if [ -f "CHANGELOG.md" ]; then
+            # 提取当前版本的日志
+            # 使用 awk 提取版本之间的内容（从版本号开始到下一个版本号之前）
+            awk -v ver="${{ github.ref_name }}" '
+              $0 ~ "^## " ver {p=1;next}
+              p&&/^## v[0-9]/{p=0;exit}
+              p{print}
+            ' CHANGELOG.md > release_notes.txt
+            
+            # 如果提取的内容为空，尝试不带v前缀再次提取
+            if [ ! -s release_notes.txt ] && [[ "${{ github.ref_name }}" == v* ]]; then
+              VERSION_NO_V="${VERSION#v}"  # 使用之前定义的 VERSION 变量
+              awk -v ver="$VERSION_NO_V" '
+                $0 ~ "^## " ver {p=1;next}
+                p&&/^## v[0-9]/{p=0;exit}
+                p{print}
+              ' CHANGELOG.md > release_notes.txt
+            fi
+            
+            # 移除空行
+            sed -i '/^[[:space:]]*$/d' release_notes.txt
+          fi
+          
+          # 如果没有找到日志或文件不存在，使用默认信息
+          if [ ! -s release_notes.txt ]; then
+            echo "Release ${{ github.ref_name }}" > release_notes.txt
+          fi
+          
+          # 显示提取的日志内容以便调试
+          echo "Extracted release notes:"
+          cat release_notes.txt
+
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-artifacts
+          path: artifacts/windows
+
+      - name: Download Android Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifacts
+          path: artifacts/android
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/windows/navi-setup-${{ github.ref_name }}.exe
+            artifacts/windows/navi-portable-${{ github.ref_name }}.zip
+            artifacts/android/navi-${{ github.ref_name }}.apk
+          name: ${{ github.ref_name }}
+          body_path: release_notes.txt
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+
+      - name: Update version.json
+        run: |
+          # 从文件中读取 release notes
+          NOTES=$(cat release_notes.txt)
+          
+          # 处理release说明中的特殊字符
+          NOTES="${NOTES//\"/\\\"}"  # 转义双引号
+          NOTES="${NOTES//$'\n'/\\n}"  # 转义换行符
+          
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"  # 移除版本号前的'v'前缀
+          
+          # 获取当前时间（UTC）
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # 构建下载链接
+          WINDOWS_PORTABLE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-portable-${{ github.ref_name }}.zip"
+          WINDOWS_SETUP_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-setup-${{ github.ref_name }}.exe"
+          ANDROID_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/navi-${{ github.ref_name }}.apk"
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+          
+          # 更新version.json
+          cat > version.json << EOF
+          {
+            "version": "${VERSION}",
+            "releaseNotes": "${NOTES}",
+            "timestamp": "${TIMESTAMP}",
+            "downloadUrls": {
+              "windows_portable": "${WINDOWS_PORTABLE_URL}",
+              "windows_setup": "${WINDOWS_SETUP_URL}",
+              "android": "${ANDROID_URL}",
+              "releaseUrl": "${RELEASE_URL}"
+            }
+          }
+          EOF
+          
+          # 显示生成的内容以便调试
+          echo "Generated version.json content:"
+          cat version.json
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add version.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          else
+            git commit --author="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>" -m "chore: update version.json for ${{ github.ref_name }}"
+            git push --force-with-lease
+          fi

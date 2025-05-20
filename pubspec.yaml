@@ -1,0 +1,67 @@
+name: navi
+description: A modern and elegant navigation application.
+
+
+publish_to: 'none' 
+
+
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.2.2
+  provider: ^6.1.1
+  flutter_tabler_icons: ^1.6.0
+  flutter_svg: ^2.0.9
+  window_manager: ^0.3.7
+  uuid: ^4.3.3  # 用于生成唯一ID
+  url_launcher: ^6.2.4
+  file_selector: ^1.0.3  # 替代file_picker
+  path_provider: ^2.1.2
+  shimmer: ^3.0.0
+  permission_handler: ^11.3.0  # 用于权限管理
+  http: ^1.2.0  # 用于网络请求
+  package_info_plus: ^5.0.1  # 用于获取应用版本信息
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
+
+
+flutter:
+
+
+  uses-material-design: true
+
+
+  assets:
+    - assets/icons/
+    - assets/icons/app_icon.png  # 应用程序图标
+    - assets/icons/app_icon.ico
+
+
+  fonts:
+    - family: GenSenRounded
+      fonts:
+        - asset: assets/fonts/GenSenRounded2-R.ttc
+          weight: 400
+        - asset: assets/fonts/GenSenRounded2-M.ttc
+          weight: 500
+        - asset: assets/fonts/GenSenRounded2-B.ttc
+          weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/icons/app_icons.png"
+  min_sdk_android: 21

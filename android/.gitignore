@@ -1,0 +1,24 @@
+gradle-wrapper.jar
+/.gradle/
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+
+# 忽略密钥文件
+key.properties
+*.keystore
+*.jks
+
+# 忽略构建输出
+/app/debug/
+/app/profile/
+/app/release/
+
+# Google Services
+google-services.json
+
+# 忽略IDE相关
+/.idea/
+*.iml

@@ -1,0 +1,49 @@
+flutter/ephemeral/
+
+# Visual Studio 用户特定文件
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio 生成的文件
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio 缓存/选项目录
+.vs/
+
+# Visual Studio 代码覆盖率结果
+*.coverage
+*.coveragexml
+
+# 构建结果
+[Bb]uild/
+*.obj
+*.pdb
+*.exe
+*.dll
+*.lib
+
+# CMake 生成的文件
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# 其他
+*.log
+Generated.props
+Generated.targets
+Flutter/Generated.props
+Flutter/Generated.targets
+Flutter/flutter_export_environment.sh

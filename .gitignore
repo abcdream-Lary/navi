@@ -1,0 +1,128 @@
+# Flutter/Dart 相关
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+coverage/
+.test_coverage.dart
+.metadata
+
+# IDE 相关
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# 操作系统相关
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+# 修改 Icon? 规则，使其只匹配 macOS 的特殊图标文件
+.Icon?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Android 相关
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/android/key.properties
+**/android/**/*.keystore
+**/android/**/*.jks
+**/android/**/google-services.json
+
+# iOS 相关
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral
+**/ios/Flutter/flutter_assets/
+**/ios/Runner/GoogleService-Info.plist
+
+# Windows 相关
+**/windows/flutter/ephemeral/
+**/windows/**/*.suo
+**/windows/**/*.user
+**/windows/**/*.userosscache
+**/windows/**/*.sln.docstates
+**/windows/**/[Dd]ebug/
+**/windows/**/[Rr]elease/
+**/windows/**/x64/
+**/windows/**/x86/
+**/windows/**/.vs/
+**/windows/**/*.obj
+**/windows/**/*.pdb
+**/windows/**/*.dll
+**/windows/**/*.lib
+**/windows/**/Generated.props
+**/windows/**/Generated.targets
+
+# Web 相关
+**/web/**/lib/
+**/web/**/packages/
+**/web/build/
+
+# 临时文件
+*.log
+*.pyc
+*.swp
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# 编译输出
+*.symbols
+*.map.json
+
+# 环境文件
+.env
+.env.*
+*.env.json
+
+# 依赖锁定文件（根据需要取消注释）
+# pubspec.lock
+
+# Keystore files
+*.keystore
+*.jks
+android/key.properties
+android/app/navi.keystore

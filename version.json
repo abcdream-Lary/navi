@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "releaseNotes": "## ✨日志\n### 🐛 全新版本发布",
+  "downloadUrls": {
+    "windows_portable": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-portable-v0.1.9.zip",
+    "windows_setup": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-setup-v0.1.9.exe",
+    "android": "https://github.com/abcdream-Lary/navi/releases/download/v0.1.9/navi-v0.1.9.apk",
+    "releaseUrl": "https://github.com/abcdream-Lary/navi/releases/tag/v0.1.9"
+  }
+}
